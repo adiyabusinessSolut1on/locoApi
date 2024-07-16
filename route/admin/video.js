@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { isAdmin } = require("../../middleware/rolebaseuserValidate");
 const {
   createVideoCategory,
   getAllVideoCategory,
@@ -14,16 +15,16 @@ const {
 } = require("../../controller/admin/videoController");
 
 
-router.post("/video/create-category", createVideoCategory);
-router.put("/video/update-category/:id", UpdateVideoCategory);
-router.get("/video/get-category", getAllVideoCategory);
-router.delete("/video/delete-category/:id", deleteVideoCategory);
+router.post("/video/create-category",isAdmin, createVideoCategory);
+router.put("/video/update-category/:id",isAdmin, UpdateVideoCategory);
+router.get("/video/get-category",isAdmin, getAllVideoCategory);
+router.delete("/video/delete-category/:id",isAdmin, deleteVideoCategory);
 
-router.post("/video/upload", UploadVideo);
-router.get("/video/get-all-video", GetALLVideo);
-router.get("/video/get-video-bycategory/:category", GetVideoByCategory);
-router.get("/video/get-video-byid/:id", GetVideoById);
-router.put("/video/update/:id", UpdateVideo);
-router.delete("/video/delete/:id", deleteVideo);
+router.post("/video/upload",isAdmin, UploadVideo);
+router.get("/video/get-all-video",isAdmin, GetALLVideo);
+router.get("/video/get-video-bycategory/:category",isAdmin, GetVideoByCategory);
+router.get("/video/get-video-byid/:id",isAdmin, GetVideoById);
+router.put("/video/update/:id",isAdmin, UpdateVideo);
+router.delete("/video/delete/:id",isAdmin, deleteVideo);
 
 module.exports = router;

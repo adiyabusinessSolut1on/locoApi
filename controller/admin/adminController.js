@@ -43,6 +43,9 @@ const UserRegister = async (req, res) => {
 const UserLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
+    const min = 100000;
+    const max = 999999;
+    const OTP = Math.floor(Math.random() * (max - min + 1)) + min;
     const user = await User.findOne({ email: email });
     if (!user) {
       return res
@@ -55,6 +58,71 @@ const UserLogin = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid Password credentials" });
     }
+   
+    await User.findByIdAndUpdate(user._id, {otp:OTP}, { new: true });
+  const  sentmail=await SendOTP(email, OTP)
+   if(!sentmail.success){
+    return res
+    .status(403)
+    .json({ success: false, message: "Something Went Wrong While Sending OTP " });
+   }
+
+    return res
+    .status(200)
+    .json({ success: true, message: "OTP has been sent on you email " });
+    // const token = jwt.sign(
+    //   { _id: user._id, email: user?.email, role: user?.role },
+    //   process.env.JWT_SECRET_KEY,
+    //   {
+    //     expiresIn: process.env.JWT_EXPIRE_TIME,
+    //   }
+    // );
+    // return res
+    //   .cookie("authorization", token, {
+    //     httpOnly: true,
+    //     expires: new Date(Date.now() + 240 * 60 * 60 * 1000),
+    //   })
+    //   .status(200)
+    //   .json({ success: true, message: "Login successful", token: token });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const VeriFyOTP = async (req, res) => {
+  try {
+      const {otp, email, newPassword } = req.body;
+      const user = await User.findOne({ email, otp });
+
+      if (!user) {
+          ChangePasswordFail_Alert(email);
+          return res.status(401).json({success:false, message: "Invalid OTP or email." });
+      }
+      const hashPassword = await bcrypt.hash(newPassword, 10);
+      const response=await User.findByIdAndUpdate(user._id, {password:hashPassword}, { new: true });
+      if(!response)return res.status(401).json({ success:false, message: "password Not Update" });
+      res.status(200).json({success:true, message: "Password has been changed", });
+
+  } catch (error) {
+      res.status(500).json({ error: error.message, message: "Something went wrong..." });
+  }
+};
+const UserLoginOTP_Verify = async (req, res) => {
+  const { email, otp } = req.body;
+ 
+  try {
+    console.log(email, otp);
+    const user = await User.findOne({ email, otp });
+   
+    if (!user) {
+      ChangePasswordFail_Alert(email);
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid OTP" });
+    }
+  
     const token = jwt.sign(
       { _id: user._id, email: user?.email, role: user?.role },
       process.env.JWT_SECRET_KEY,
@@ -200,23 +268,5 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-const VeriFyOTP = async (req, res) => {
-  try {
-      const {otp, email, newPassword } = req.body;
 
-      const user = await User.findOne({ email, otp });
-
-      if (!user) {
-          ChangePasswordFail_Alert(email);
-          return res.status(401).json({success:false, message: "Invalid OTP or email." });
-      }
-      const hashPassword = await bcrypt.hash(newPassword, 10);
-      const response=await User.findByIdAndUpdate(user._id, {password:hashPassword}, { new: true });
-      if(!response)return res.status(401).json({ success:false, message: "password Not Update" });
-      res.status(200).json({success:true, message: "Password has been changed", });
-
-  } catch (error) {
-      res.status(500).json({ error: error.message, message: "Something went wrong..." });
-  }
-};
-module.exports = {getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP } 
+module.exports = {getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP,UserLoginOTP_Verify } 
