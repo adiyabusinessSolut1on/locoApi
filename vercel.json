@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "index.js"
+      }
+    ],
+    "env": {
+      "MONGO_URL": "mongodb+srv://shahzad201415:I5QyIW43kM29nYQq@cluster0.nmnrxaf.mongodb.net/",
+      "PORT": "3000"
+    }
+  }
+  
