@@ -584,7 +584,7 @@ const GetUserBlog = async (req, res) => {
 const GetAllBlogs = async (req, res) => {
   try {
     const response = await Blog.find();
-    if (response.length < 1) {
+    if (!response.length>0) {
       res.status(404).json({success:false,message:" Blog Not Found"});
     }
     res.status(200).json({ success: true, data: response });
