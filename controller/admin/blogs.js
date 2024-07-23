@@ -554,6 +554,28 @@ console.log("thumbnail>>",thumnail)
   }
 };
 
+const AddCommentBlogById = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
+  const userId=req.userId
+  try {
+        const response = await Blog.findById(id);
+        if (!response) {
+          return res.status(404).json({ success: false, message: 'Blog not found' });
+        }
+        const newComment = { comment:comment, comment_user:userId };
+        response.comments.push(newComment);
+        await response.save();
+        res.status(200).json({
+          success: true,
+          message: 'Comment added successfully',
+          data: response,
+        });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const GetUserBlog = async (req, res) => {
   try {
     const userBlog = await UserBlogs.find()
@@ -678,4 +700,5 @@ module.exports = {
   UpdateBlogById,
   GetBlogById,
   GetBlogBySlug,
+  AddCommentBlogById
 };

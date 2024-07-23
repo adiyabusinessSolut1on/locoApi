@@ -98,6 +98,53 @@ const getUser = async (req, res) => {
     });
   }
 };
+
+
+const deletePost = async (req, res) => {
+  const {id}=req.params
+   try {
+     const response = await Post.findByIdAndDelete(id);
+     if (!response) {
+       return res
+         .status(404)
+         .json({ success: false, message: "Data Not Found" });
+     }
+     res.status(200).json({
+       success: true,
+       message: " post Delete",
+     
+     });
+   } catch (err) {
+     res.status(500).json({
+       success: false,
+       message: err.message,
+     });
+   }
+ };
+const UpdatePost = async (req, res) => {
+ const {id}=req.params
+  try {
+    const response = await Post.findByIdAndUpdate(id,req.body,{
+      new:true
+    });
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Post Updated",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 const userPost = async (req, res) => {
   const { thumnail, content, mediatype } = req.body;
 
@@ -172,6 +219,51 @@ const getAllPostByUserId = async (req, res) => {
     });
   }
 };
+
+const DeleteMutualPost = async (req, res) => {
+  const {id}=req.params
+   try {
+     const response = await Mutual.findByIdAndDelete(id);
+     if (!response) {
+       return res
+         .status(404)
+         .json({ success: false, message: "Data Not Found" });
+     }
+     res.status(200).json({
+       success: true,
+       message: " Mutual post Delete",
+     
+     });
+   } catch (err) {
+     res.status(500).json({
+       success: false,
+       message: err.message,
+     });
+   }
+ };
+const UpdateMutualPost = async (req, res) => {
+ const {id}=req.params
+  try {
+    const response = await Mutual.findByIdAndUpdate(id,req.body,{
+      new:true
+    });
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "get post Updated",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 const userMutualPost = async (req, res) => {
   const {
     name,
@@ -231,9 +323,20 @@ const getAllFormPost = async (req, res) => {
 };
 
 const LikePosts = async (req, res) => {
+  const userId = req.userId;
   try {
     const { id } = req.params;
 
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $push: { likedPosts: id } },
+      { new: true }
+    )
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
     const post = await Post.findByIdAndUpdate(
       id,
       { $inc: { like: 1 } },
@@ -256,7 +359,85 @@ const LikePosts = async (req, res) => {
     });
   }
 };
+const userLikedPosts = async (req, res) => {
+  const userId = req.userId;
+  try {
+   
 
+    const response = await User.findById(userId).populate("likedPosts")
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({
+      success: true,
+      data: response?.likedPosts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const SavePosts = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const response = await User.findById(userId).populate("savePosts")
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({
+      success: true,
+      data: response?.savePosts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const unLikePosts = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const { id } = req.params;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { likedPosts: id } },
+      { new: true }
+    )
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const post = await Post.findByIdAndUpdate(
+      id,
+      { $inc: { like: -1 } },
+      { new: true } 
+    );
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Post Un-liked successfully',
+      data: post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 const CommentPost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -707,5 +888,12 @@ module.exports = {
   TestComplete,
   userComplteteQuiz,
   userComplteteTest,
-  removePostFromUser
+  removePostFromUser,
+  UpdateMutualPost,
+  DeleteMutualPost,
+  UpdatePost,
+  deletePost,
+  unLikePosts,
+  SavePosts,
+  userLikedPosts
 };

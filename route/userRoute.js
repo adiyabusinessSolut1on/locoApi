@@ -16,12 +16,19 @@ const {
   getSeachMutualpostUsingwantedLobby,
   getSeachMutualpostUsingDvision,
   LikePosts,
+  unLikePosts,
   savePostInUser,
+  UpdateMutualPost,
   removePostFromUser,
+  DeleteMutualPost,
   CommentPost,
   getAllQuiz,
   TestComplete,
   UpdateTestAnswer,
+  UpdatePost,
+  deletePost,
+  userLikedPosts,
+  SavePosts,
   getSingleQuiz,getSingleTest,getAllTest,UpdateAnswer,QuizComplete,userComplteteQuiz,userComplteteTest
 } = require("../controller/userController");
 const { getAll } = require("../controller/admin/implinks.Controller");
@@ -29,8 +36,9 @@ const {
   getAllCategory,
   getAwarenessById,
   getAwarenessByCategory,
+  getAll_Awareness
 } = require("../controller/admin/awaremessController");
-const { GetUserBlog } = require("../controller/admin/blogs");
+const { GetUserBlog ,AddCommentBlogById} = require("../controller/admin/blogs");
 const {
   getAllcompany,
   getSingleProduct,
@@ -50,6 +58,26 @@ router.post("/post", usermiddleare, userPost);
 router.get("/get-all-post", usermiddleare, getAllPost);
 router.get("/get-post-by-user", usermiddleare, getAllPostByUserId);
 router.post("/mutual-post", usermiddleare, userMutualPost);
+
+router.put("/mutual-post/:id",isUser,UpdateMutualPost);
+router.delete("/mutual-post/:id",isUser,DeleteMutualPost);
+router.put("/post/:id",isUser,UpdatePost);
+router.delete("/post/:id",isUser,deletePost);
+router.put("/blog/comment/:id",isUser,AddCommentBlogById);
+router.get("/get-all/awareness",getAll_Awareness);
+router.put("/unsave-post",isUser,removePostFromUser);
+router.put("/post/unlike/:id",isUser,unLikePosts)
+router.put("/post/like/:id",isUser,LikePosts);
+router.post("/post/comment/:id",isUser,CommentPost);
+router.put("/savepost",isUser,savePostInUser);
+router.get("/saved/posts",isUser,SavePosts);
+router.get("/liked/posts",isUser,userLikedPosts);
+
+
+
+
+
+
 router.get("/get-all-mutual-post", usermiddleare, getAllFormPost);
 router.get(
   "/get-all-mutual-post-byuser",
@@ -69,32 +97,29 @@ router.get(
 router.put("/user/profile-update", usermiddleare, UpdateUserProfile);
 
 // important Links
-router.get("/important_link", isUser, getAll);
+router.get("/important_link", getAll);
 
 //awareness
-router.get("/awareness/category", isUser, getAllCategory);
-router.get("/awareness/:id", isUser, getAwarenessById);
-router.get("/awareness/category/:category", isUser, getAwarenessByCategory);
+router.get("/awareness/category", getAllCategory);
+router.get("/awareness/:id", getAwarenessById);
+router.get("/awareness/category/:category", getAwarenessByCategory);
 
 //blog
 router.get("/blog/userblog", isUser, GetUserBlog);
 
 //sponsor
-router.get("/sponsor/company", isUser, getAllcompany);
-router.get("/sponsor/company/:id", isUser, getSinglecompany);
-router.get("/sponsor/product", isUser, getAllProsucts);
-router.get("/sponsor/product/:id", isUser, getSingleProduct);
+router.get("/sponsor/company", getAllcompany);
+router.get("/sponsor/company/:id", getSinglecompany);
+router.get("/sponsor/product", getAllProsucts);
+router.get("/sponsor/product/:id", getSingleProduct);
 
 //video
-router.get("/video/get-category", isUser, getAllVideoCategory);
-router.get("/video/get-video-bycategory/:category", isUser, GetVideoByCategory);
-router.get("/video/get-video-byid/:id", isUser, GetVideoById);
+router.get("/video/get-category", getAllVideoCategory);
+router.get("/video/get-video-bycategory/:category", GetVideoByCategory);
+router.get("/video/get-video-byid/:id", GetVideoById);
 
-//like and comment and save posts
-router.post("/post/like/:id",isUser,LikePosts);
-router.post("/post/comment/:id",isUser,CommentPost);
-router.put("/savepost",isUser,savePostInUser);
-router.put("/rempost",isUser,removePostFromUser)
+
+
 
 //user Quiz
 router.get("/quiz",isUser,getAllQuiz);
