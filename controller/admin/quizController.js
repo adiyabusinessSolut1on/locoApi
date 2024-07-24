@@ -1,6 +1,7 @@
 
 const Quiz=require("../../model/quiz/quizModel")
-const QuizQuestion=require("../../model/quiz/quizquestions")
+const QuizQuestion=require("../../model/quiz/quizquestions");
+const QuizTestCategory=require("../../model/quiz/quiz_testCategoryModel")
 const CreatQuiz = async (req, res) => {
     try {
       const response = await Quiz.create(req.body);
@@ -157,7 +158,78 @@ const CreatQuiz = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
+
+
+
+  const createQuizTestCategory = async (req, res) => {
+    try {
+      const response = new QuizTestCategory(req.body);
+      const saveresponse = await response.save();
+      res.status(201).json({
+        success: true,
+        data: saveresponse,
+        message: "category Created",
+      });
+    } catch (error) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+  const UpdateQuizTestCategory = async (req, res) => {
+    try {
+      const response = await QuizTestCategory.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (response) {
+     return   res.status(200).json({
+          success: true,
+          data: response,
+          message: "Category Updated",
+        });
+      } else {
+       return res.status(404).json({ success: false, message: "Category not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+  const getAllQuizTestCategory = async (req, res) => {
+    try {
+      const response = await QuizTestCategory.find();
+      if (!response?.length > 0) {
+        return res
+          .status(200)
+          .json({ success: false, mesaage: "category Not Found" });
+      }
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  const deleteQuizTestCategory = async (req, res) => {
+    try {
+      const response = await QuizTestCategory.findByIdAndDelete(req.params.id);
+      if (response) {
+        res
+          .status(200)
+          .json({ success: true, message: " Category deleted" });
+      } else {
+        res.status(404).json({ success: false, message: "Category not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
   module.exports = {
+    createQuizTestCategory,
+    UpdateQuizTestCategory,
+    getAllQuizTestCategory,
+    deleteQuizTestCategory,
     CreatQuiz,
     UpdateQuiz,
     getAllQuiz,

@@ -39,13 +39,13 @@ const UpdateCategory = async (req, res) => {
 };
 const getAllCategory = async (req, res) => {
   try {
-    const response = await AwarenessCategory.find();
-    if (!response?.length > 0) {
+    const response = await AwarenessCategory.find().sort({ createdAt: -1 });
+    if (!response?.length>0) {
       return res
-        .status(200)
-        .json({ success: false, mesaage: "category Not Found" });
+        .status(404)
+        .json({ success: false, message: "Category Not Found" });
     }
-    res.status(200).json(response);
+    res.status(200).json({ success: true, data: response });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

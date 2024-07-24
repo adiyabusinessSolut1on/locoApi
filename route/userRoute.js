@@ -54,15 +54,18 @@ const {
 router.post("/register", UserRegister);
 router.post("/login", UserLogin);
 router.get("/get_myself", usermiddleare, getUser);
+
+
+router.post("/mutual-post", usermiddleare, userMutualPost);
+router.put("/mutual-post/:id",isUser,UpdateMutualPost);
+router.delete("/mutual-post/:id",isUser,DeleteMutualPost);
+
 router.post("/post", usermiddleare, userPost);
 router.get("/get-all-post", usermiddleare, getAllPost);
 router.get("/get-post-by-user", usermiddleare, getAllPostByUserId);
-router.post("/mutual-post", usermiddleare, userMutualPost);
-
-router.put("/mutual-post/:id",isUser,UpdateMutualPost);
-router.delete("/mutual-post/:id",isUser,DeleteMutualPost);
 router.put("/post/:id",isUser,UpdatePost);
 router.delete("/post/:id",isUser,deletePost);
+
 router.put("/blog/comment/:id",isUser,AddCommentBlogById);
 router.get("/get-all/awareness",getAll_Awareness);
 router.put("/unsave-post",isUser,removePostFromUser);
@@ -72,9 +75,6 @@ router.post("/post/comment/:id",isUser,CommentPost);
 router.put("/savepost",isUser,savePostInUser);
 router.get("/saved/posts",isUser,SavePosts);
 router.get("/liked/posts",isUser,userLikedPosts);
-
-
-
 
 
 

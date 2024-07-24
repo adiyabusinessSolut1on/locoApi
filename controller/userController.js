@@ -83,8 +83,8 @@ const UserLogin = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
-      .select("-password")
-      .select("-otp").populate("savePosts");
+      .select("-password, savePosts, likedPosts")
+      .select("-otp");
     if (!user) {
       return res
         .status(403)

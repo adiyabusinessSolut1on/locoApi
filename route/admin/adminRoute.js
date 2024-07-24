@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {isAdmin}=require('../../middleware/rolebaseuserValidate');
-const { UserRegister,UserLogin,getUser,getAllUsers,getUserById,UpdateUser,UserLoginOTP_Verify,deleteUser,ForGetPassword,VeriFyOTP} = require("../../controller/admin/adminController");
+const {UserRegisterdByAdmin, UserRegister,UserLogin,getUser,getAllUsers,getUserById,UpdateUser,UserLoginOTP_Verify,deleteUser,ForGetPassword,VeriFyOTP} = require("../../controller/admin/adminController");
 
 //admin
 router.post('/register', UserRegister);
@@ -19,5 +19,7 @@ router.get("/getuser/:id",isAdmin,getUserById);
 router.put("/update-user/:id",isAdmin,UpdateUser);
 router.delete("/userDelete/:id",isAdmin,deleteUser);
 
+//Admin Can Create Users
+router.post("/create-user",isAdmin,UserRegisterdByAdmin);
 
 module.exports = router;

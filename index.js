@@ -21,8 +21,20 @@ const sponsorRoute=require("./route/admin/sponsorRoute.js")
 const quizRoute=require("./route/admin/quizRoute.js");
 const testYourSelfRoute=require("./route/admin/test_yourselfRoute.js")
 const DailyTaskRoute=require("./route/admin/dailytaskRoute.js");
-const quiztestRoute=require("./route/quiztestRoutes.js")
+const quiztestRoute=require("./route/quiztestRoutes.js");
+const pollRoute=require("./route/pollRoute.js")
 const server = createServer(app);
+
+const Poll = require('./model/pollModel.js');
+const checkTimeLimits = async () => {
+  const now = new Date();
+  await Poll.updateMany(
+    { timelimit: { $lte: now }, isActive: true },
+    { $set: { isActive: false } }
+  );
+};
+setInterval(checkTimeLimits, 60 * 1000);
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -51,6 +63,8 @@ mongoose
 app.use(require("./route/userRoute.js"));
 app.use("/api/users", usersRoute);
 app.use("/api/users",quiztestRoute);
+app.use("/api/users", usersRoute);
+app.use("/api/users",pollRoute);
 app.use("/api/chats", chatsRoute);
 app.use("/api/messages", messagesRoute);
 app.use("/api/admin",blogRoute);
@@ -62,6 +76,8 @@ app.use("/api/admin",sponsorRoute);
 app.use("/api/admin",quizRoute);
 app.use("/api/admin",testYourSelfRoute);
 app.use("/api/admin",DailyTaskRoute);
+
+
 
 server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);

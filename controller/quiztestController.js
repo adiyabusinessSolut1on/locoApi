@@ -3,7 +3,8 @@ const TestYourSelf=require("../model/test_yourself/text_yourself");
 const TestYourSelfQuestion=require("../model/test_yourself/testYourSelfQuestionModel");
 const Quiz=require("../model/quiz/quizModel")
 const DailyTask=require("../model/daily-taskModel")
-const QuizQuestion=require("../model/quiz/quizquestions")
+const QuizQuestion=require("../model/quiz/quizquestions");
+const QuizTestCategory=require("../model/quiz/quiz_testCategoryModel")
 const userComplteteQuiz = async (req, res) => {
     const id=req.userId
     try {
@@ -115,8 +116,23 @@ const userComplteteQuiz = async (req, res) => {
         .send({ success: false, message: "Inter Server Error", error: err });
     }
   };
+
+  const getAllQuizTestCategory = async (req, res) => {
+    try {
+      const response = await QuizTestCategory.find();
+      if (!response?.length > 0) {
+        return res
+          .status(200)
+          .json({ success: false, mesaage: "category Not Found" });
+      }
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
   module.exports ={userComplteteQuiz,userComplteteTest,userComplteteDailyTask,
     getAllTest,
+    getAllQuizTestCategory,
     getAllQuiz,
     getAllDailyTask
   }

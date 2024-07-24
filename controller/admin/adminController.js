@@ -267,6 +267,41 @@ const getAllUsers = async (req, res) => {
         });
     }
 };
+const UserRegisterdByAdmin = async (req, res) => {
+  const { image, name, email, mobile, password, designation, division } =
+    req.body;
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      image: image,
+      name: name,
+      email: email,
+      mobile: mobile,
+      password: hashPassword,
+      designation: designation,
+      division: division,
+    });
 
+    await newUser.save();
 
-module.exports = {getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP,UserLoginOTP_Verify } 
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {UserRegisterdByAdmin,getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP,UserLoginOTP_Verify } 
