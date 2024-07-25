@@ -9,6 +9,6 @@ router.get("/daily-task",getAllDailyTask);
 router.put("/userquiz/complete",isUser,userComplteteQuiz);
 router.put("/usertest/complete",isUser,userComplteteTest);
 router.put("/usertask/complete",isUser,userComplteteDailyTask);
-
+// user can get 
 router.get("/quiz/category",getAllQuizTestCategory);
 module.exports = router;

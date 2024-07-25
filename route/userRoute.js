@@ -105,7 +105,7 @@ router.get("/awareness/:id", getAwarenessById);
 router.get("/awareness/category/:category", getAwarenessByCategory);
 
 //blog
-router.get("/blog/userblog", isUser, GetUserBlog);
+router.get("/blog/userblog",  GetUserBlog);
 
 //sponsor
 router.get("/sponsor/company", getAllcompany);
