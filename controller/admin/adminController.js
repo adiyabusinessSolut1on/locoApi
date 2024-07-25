@@ -6,7 +6,41 @@ const SendOTP=require("../../email-templates/sendOtpMail")
 const LogInFailAlert=require("../../email-templates/login-failed-alert");
 const ChangePasswordFail_Alert=require("../../email-templates/password-change-alert");
 const jwt = require("jsonwebtoken");
-const { promises } = require("nodemailer/lib/xoauth2");
+const Mutual=require("../../model/mutual")
+const Posts=require("../../model/post")
+const getAllMutualPost = async (req, res) => {
+  try {
+    const response = await Mutual.find()
+    if (!response?.length>0) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    return res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const getAllPosts = async (req, res) => {
+  try {
+    const response = await Posts.find()
+    if (!response?.length>0) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    return res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 const UserRegister = async (req, res) => {
   const { name, email, mobile, password, role } = req.body;
   try {
@@ -54,6 +88,7 @@ const UserLogin = async (req, res) => {
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      LogInFailAlert(email)
       return res
         .status(401)
         .json({ success: false, message: "Invalid Password credentials" });
@@ -235,8 +270,6 @@ const getAllUsers = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
-
-
   const ForGetPassword = async (req, res) => {
     const { email } = req.body;
     try {
@@ -304,4 +337,4 @@ const UserRegisterdByAdmin = async (req, res) => {
   }
 };
 
-module.exports = {UserRegisterdByAdmin,getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP,UserLoginOTP_Verify } 
+module.exports = {getAllPosts,getAllMutualPost,UserRegisterdByAdmin,getUser, UserRegister,UserLogin,getAllUsers,getUserById,UpdateUser,deleteUser,ForGetPassword,VeriFyOTP,UserLoginOTP_Verify } 
