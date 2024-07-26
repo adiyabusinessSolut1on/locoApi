@@ -197,11 +197,11 @@ const getAllPost = async (req, res) => {
     });
   }
 };
+
 const getAllPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
     const response = await Post.find({ user: userId });
-    console.log("lengthof datah", response?.length);
     if (!response.length > 0) {
       return res
         .status(404)

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {isAdmin}=require('../../middleware/rolebaseuserValidate');
 const {UserRegisterdByAdmin,getAllMutualPost,getAllPosts, UserRegister,UserLogin,getUser,getAllUsers,getUserById,UpdateUser,UserLoginOTP_Verify,deleteUser,ForGetPassword,VeriFyOTP} = require("../../controller/admin/adminController");
-
+const {NotificationPush}=require("../../controller/admin/NotificationController")
 //admin
 router.post('/register', UserRegister);
 router.post("/login",UserLogin);
@@ -27,6 +27,9 @@ router.post("/create-user",isAdmin,UserRegisterdByAdmin);
 router.get("/mutual/post",getAllMutualPost)
 
 // Get All User Posts
-router.get("/posts",getAllPosts)
+router.get("/posts", getAllPosts);
+router.post("/notify", isAdmin, NotificationPush);
+
+
 
 module.exports = router;
