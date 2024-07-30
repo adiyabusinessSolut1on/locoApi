@@ -53,13 +53,6 @@ const userModel = new mongoose.Schema(
     },
     mobile: {
       type: Number,
-      validate: {
-        validator: function (v) {
-          return /^d{10,12}$/.test(v);
-        },
-        message: (props) =>
-          `${props.value} is not a valid phone number! It should be between 10 and 12 digits.`,
-      },
     },
     password: {
       type: String,
