@@ -3,7 +3,7 @@ const BlogCategoryModel = require("../model/blogs/blogcategoryModel");
 const GetBlogByCategoryId = async (req, res) => {
   const { categoryId } = req.params;
   try {
-    const response = await Blog.find({ categoryId: categoryId });
+    const response = await Blog.find({ categoryId: categoryId }).sort({ createdAt: -1 });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -13,7 +13,7 @@ const GetBlogByCategoryId = async (req, res) => {
 const GetBlogByCategory = async (req, res) => {
     const { category } = req.params;
     try {
-      const response = await Blog.find({ categoryName: category });
+      const response = await Blog.find({ categoryName: category }).sort({ createdAt: -1 });
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });

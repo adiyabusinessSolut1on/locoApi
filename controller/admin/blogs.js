@@ -102,10 +102,10 @@ const createInnerCategory = async (req, res) => {
 const updateMainCategory = async (req, res) => {
   try {
     const { mainCategoryId } = req.params;
-    const { name } = req.body;
+    const { name,image } = req.body;
     const mainCategory = await BlogCategoryModel.findByIdAndUpdate(
       mainCategoryId,
-      { name },
+      { name, image },
       { new: true }
     );
     if (!mainCategory)
@@ -695,7 +695,7 @@ const GetUserBlog = async (req, res) => {
 };
 const GetAllBlogs = async (req, res) => {
   try {
-    const response = await Blog.find();
+    const response = await Blog.find().sort({ createdAt: -1 });
     if (!response.length > 0) {
       res.status(404).json({ success: false, message: " Blog Not Found" });
     }
