@@ -22,7 +22,8 @@ const quizRoute=require("./route/admin/quizRoute.js");
 const testYourSelfRoute=require("./route/admin/test_yourselfRoute.js")
 const DailyTaskRoute=require("./route/admin/dailytaskRoute.js");
 const quiztestRoute=require("./route/quiztestRoutes.js");
-const pollRoute=require("./route/pollRoute.js")
+const pollRoute=require("./route/pollRoute.js");
+const Blog=require("./route/blog.js")
 const server = createServer(app);
 
 const Poll = require('./model/pollModel.js');
@@ -76,7 +77,7 @@ app.use("/api/admin",sponsorRoute);
 app.use("/api/admin",quizRoute);
 app.use("/api/admin",testYourSelfRoute);
 app.use("/api/admin",DailyTaskRoute);
-
+app.use("/api/user/blog",Blog)
 
 
 server.listen(process.env.PORT, (port) => {

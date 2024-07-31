@@ -20,6 +20,7 @@ const {
   createBlogSubSubCategory,
   createBlogInnerCategory,
   CreateBlogs,GetUserBlog,
+  CreateNEWBlog,
   GetAllBlogs,
   DeleteBlogById,
   UpdateBlogById,
@@ -29,6 +30,7 @@ const {
 
 router.get("/blog/userblog",GetUserBlog);
 router.post("/blog/create-blogs",CreateBlogs); 
+router.post("/blog/create",CreateNEWBlog)
 // router.post("/blog/create-blog-innercategory",createBlogInnerCategory);
 // router.post("/blog/createblogsubcategory",createBlogSubCategory);
 // router.post("/blog/blog-subsubcategory",createBlogSubSubCategory);
@@ -42,8 +44,6 @@ router.get("/blog/get-blog-by-slug/:slug",GetBlogBySlug);
 
 
 router.post("/main-category", createMainCategory);
-
-
 router.post("/sub-category/:mainCategoryId", createSubCategory);
 
 router.post(

@@ -648,7 +648,24 @@ const AddCommentBlogById = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+const CreateNEWBlog = async (req, res) => {
+  try {
+    const response = await Blog.create(req.body);
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not Upload" });
+    }
 
+    res.status(201).json({
+      success: true,
+      message: "Blog Uploaded",
+      data: response,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 const GetUserBlog = async (req, res) => {
   try {
     const userBlog = await UserBlogs.find()
@@ -776,4 +793,5 @@ module.exports = {
   GetBlogById,
   GetBlogBySlug,
   AddCommentBlogById,
+  CreateNEWBlog
 };

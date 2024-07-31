@@ -200,8 +200,7 @@ const getUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-      const user = await User.find({role:"user"})
-        .select("-password")
+      const user = await User.find({ role: "user" }).sort({ createdAt: -1 }).select("-password")
         .select("-otp");
       if (!user?.length>0) {
         return res

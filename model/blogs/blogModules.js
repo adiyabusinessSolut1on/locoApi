@@ -11,6 +11,8 @@ const comment=new mongoose.Schema({
   }
 })
 const BlogSchema = new Schema({
+  categoryId:{type: mongoose.Schema.Types.ObjectId},
+  categoryName:{type:String},
   title: { type: String, required: true },
   slug:{type:String,require:true},
   thumnail: {type:String,require:true}, 
