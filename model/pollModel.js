@@ -7,6 +7,10 @@ const pollSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
+    type:{
+      type:String,
+      default:"poll"
+    },
     name: {
       type: String,
       required: true,

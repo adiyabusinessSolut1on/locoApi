@@ -15,6 +15,10 @@ const postModel = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
+    type:{
+      type:String,
+      default:"post"
+    },
     thumnail: {
       type: String,
     },

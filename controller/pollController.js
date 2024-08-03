@@ -1,5 +1,5 @@
 const Poll = require("../model/pollModel");
-
+const Post=require("../model/post")
 const createPoll = async (req, res) => {
   const userId = req.userId;
   try {
@@ -69,11 +69,23 @@ const deletePoll = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+const getMixedpollpost=async (req,res)=>{
+  try {
+    const posts = await Post.find().populate('user comments.comment_user');
+    const polls = await Poll.find().populate('userId options.voters');
 
+    const content = [...posts, ...polls].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.status(200).json(content);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 module.exports = {
   createPoll,
   getPolls,
   getPollById,
   updatePoll,
   deletePoll,
+  getMixedpollpost
 };
