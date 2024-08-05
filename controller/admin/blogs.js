@@ -331,11 +331,6 @@ const deleteInnerCategory = async (req, res) => {
 const GetBlogCategory = async (req, res) => {
   try {
     const response = await BlogCategoryModel.find().sort({ createdAt: -1 });
-    if (!response)
-      return res
-        .status(404)
-        .json({ success: false, message: "Category Not Found" });
-
     res.status(201).json({ success: true, data: response });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

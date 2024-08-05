@@ -40,11 +40,6 @@ const UpdateQuiz = async (req, res) => {
 const getAllQuiz = async (req, res) => {
   try {
     const response = await Quiz.find().populate("questions");
-    if (!response?.length > 0) {
-      return res
-        .status(200)
-        .json({ success: false, mesaage: "Quiz Not Found" });
-    }
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -202,11 +197,6 @@ const UpdateQuizTestCategory = async (req, res) => {
 const getAllQuizTestCategory = async (req, res) => {
   try {
     const response = await QuizTestCategory.find();
-    if (!response?.length > 0) {
-      return res
-        .status(200)
-        .json({ success: false, mesaage: "category Not Found" });
-    }
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });

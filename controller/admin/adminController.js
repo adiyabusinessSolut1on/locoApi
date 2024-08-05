@@ -27,11 +27,6 @@ const getAllMutualPost = async (req, res) => {
 const getAllPosts = async (req, res) => {
   try {
     const response = await Posts.find()
-    if (!response?.length>0) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Data Not Found" });
-    }
     return res.status(200).json(response);
   } catch (error) {
     res.status(500).json({
@@ -202,11 +197,6 @@ const getAllUsers = async (req, res) => {
     try {
       const user = await User.find({ role: "user" }).sort({ createdAt: -1 }).select("-password")
         .select("-otp");
-      if (!user?.length>0) {
-        return res
-          .status(403)
-          .json({ success: false, message: "user Not Found" });
-      }
       return res.status(200).json(user);
     } catch (error) {
       res.status(500).json({

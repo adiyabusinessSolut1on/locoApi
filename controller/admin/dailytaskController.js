@@ -16,11 +16,6 @@ const dailyTaskCreate = async (req, res) => {
   const dailyTaskgetAll = async (req, res) => {
     try {
       const response = await DailyTask.find();
-      if (!response?.length > 0) {
-        return res
-          .status(200)
-          .json({ success: false, mesaage: "Daly Task Data Not Found" });
-      }
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: error.message });
