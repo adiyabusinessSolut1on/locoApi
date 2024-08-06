@@ -25,7 +25,10 @@ const getPolls = async (req, res) => {
 
 const getPollById = async (req, res) => {
   try {
-    const poll = await Poll.findById(req.params.id);
+    const poll = await Poll.findById(req.params.id).populate({
+      path: 'comments.comment_user',
+      select: 'name email image'
+    });
     if (!poll)
       return res
         .status(404)
@@ -49,6 +52,12 @@ const updatePoll = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Poll not found" });
+        const totalVotes = poll.options.reduce((sum, option) => sum + option.voters.length, 0);
+    poll.options.forEach(option => {
+      option.percent = totalVotes === 0 ? 0 : (option.voters.length / totalVotes) * 100;
+    });
+
+    await poll.save();
     res.status(200).json({ success: true, data: poll });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -71,9 +80,14 @@ const deletePoll = async (req, res) => {
 };
 const getMixedpollpost = async (req, res) => {
   try {
-    const posts = await Post.find().populate("user comments.comment_user");
-    const polls = await Poll.find().populate("userId options.voters");
-
+    const posts = await Post.find().populate({
+      path: 'comments.comment_user',
+      select: 'name email image'
+    });
+    const polls = await Poll.find() .populate({
+      path: 'options.voters',
+      select: 'name email image'
+    });
     const content = [...posts, ...polls].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
