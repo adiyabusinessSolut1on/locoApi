@@ -83,6 +83,9 @@ const getMixedpollpost = async (req, res) => {
     const posts = await Post.find().populate({
       path: 'comments.comment_user',
       select: 'name email image'
+    }).populate({
+      path: 'user',
+      select: 'name email image'
     });
     const polls = await Poll.find() .populate({
       path: 'options.voters',
