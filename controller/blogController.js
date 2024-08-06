@@ -28,10 +28,7 @@ const GetBlogByCategory = async (req, res) => {
 
   const GetBlogCategory = async (req, res) => {
     try {
-      const response = await BlogCategoryModel.find().sort({ createdAt: -1 }).populate({
-        path: 'comments.comment_user',
-        select: 'name email image'
-      });
+      const response = await BlogCategoryModel.find().sort({ createdAt: -1 });
       if (!response)
         return res
           .status(404)
