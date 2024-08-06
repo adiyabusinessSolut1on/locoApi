@@ -7,9 +7,9 @@ const pollSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
-    type:{
-      type:String,
-      default:"poll"
+    type: {
+      type: String,
+      default: "poll",
     },
     name: {
       type: String,
@@ -26,6 +26,9 @@ const pollSchema = new Schema(
     },
     options: [
       {
+        percent: {
+          type: Number,
+        },
         optionName: {
           type: String,
           required: true,

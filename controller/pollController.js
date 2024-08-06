@@ -52,10 +52,14 @@ const updatePoll = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Poll not found" });
-        const totalVotes = poll.options.reduce((sum, option) => sum + option.voters.length, 0);
-    poll.options.forEach(option => {
-      option.percent = totalVotes === 0 ? 0 : (option.voters.length / totalVotes) * 100;
-    });
+        const totalVotes = poll.options.reduce(
+          (sum, option) => sum + option.voters.length,
+          0
+        );
+        poll.options.forEach((option) => {
+          option.percent =
+            totalVotes === 0 ? 0 : (option.voters.length / totalVotes) * 100;
+        });
 
     await poll.save();
     res.status(200).json({ success: true, data: poll });
@@ -90,6 +94,9 @@ const getMixedpollpost = async (req, res) => {
     const polls = await Poll.find() .populate({
       path: 'options.voters',
       select: 'name email image'
+    }).populate({
+      path:"userId",
+      select:"name email image"
     });
     const content = [...posts, ...polls].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
