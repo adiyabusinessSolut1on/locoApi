@@ -90,12 +90,7 @@ const userComplteteQuiz = async (req, res) => {
   };
   const getAllQuiz = async (req, res) => {
     try {
-      const response = await Quiz.find().populate("questions");
-      if (!response?.length > 0) {
-        return res
-          .status(200)
-          .json({ success: false, mesaage: "Quiz Not Found" });
-      }
+      const response = await Quiz.find().populate("questions").lean();
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -103,7 +98,7 @@ const userComplteteQuiz = async (req, res) => {
   };
   const getAllDailyTask = async (req, res) => {
     try {
-      const response = await DailyTask.find();
+      const response = await DailyTask.find().lean();
       if (!response?.length > 0) {
         return res
           .status(403)
@@ -119,7 +114,7 @@ const userComplteteQuiz = async (req, res) => {
 
   const getAllQuizTestCategory = async (req, res) => {
     try {
-      const response = await QuizTestCategory.find();
+      const response = await QuizTestCategory.find().lean();
       if (!response?.length > 0) {
         return res
           .status(200)

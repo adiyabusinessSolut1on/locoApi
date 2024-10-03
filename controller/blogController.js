@@ -1,43 +1,56 @@
 const Blog = require("../model/blogs/blogModules");
 const BlogCategoryModel = require("../model/blogs/blogcategoryModel");
 const GetBlogByCategoryId = async (req, res) => {
-  const { categoryId } = req.params;
   try {
-    const response = await Blog.find({ categoryId: categoryId }).sort({ createdAt: -1 }).populate({
-      path: 'comments.comment_user',
-      select: 'name email image'
-    });
-    res.status(200).json(response);
+    const { categoryId } = req.params;
+    if (!categoryId) {
+      return res.status(400).json({ success: false, message: 'Category ID is required' });
+    }
+    const blogs = await Blog.find({ categoryId })
+      .sort('-createdAt') 
+      .populate('comments.comment_user', 'name email image')
+      .lean();
+
+    res.status(200).json(blogs);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Error fetching blogs:', error.message || error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
 const GetBlogByCategory = async (req, res) => {
+  try {
     const { category } = req.params;
-    try {
-      const response = await Blog.find({ categoryName: category }).sort({ createdAt: -1 }).populate({
-        path: 'comments.comment_user',
-        select: 'name email image'
-      });
-      res.status(200).json(response);
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+    if (!category) {
+      return res.status(400).json({ success: false, message: 'Category is required' });
     }
-  };
+    const blogs = await Blog.find({ categoryName: category })
+      .sort('-createdAt')
+      .populate('comments.comment_user', 'name email image')
+      .lean();
+    res.set('Cache-Control', 'public, max-age=300');
 
-  const GetBlogCategory = async (req, res) => {
-    try {
-      const response = await BlogCategoryModel.find().sort({ createdAt: -1 });
-      if (!response)
-        return res
-          .status(404)
-          .json({ success: false, message: "Category Not Found" });
-  
-      res.status(201).json({ success: true, data: response });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  };
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.error('Error fetching blogs:', error.message || error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+const GetBlogCategory = async (req, res) => {
+  try {
+    const categories = await BlogCategoryModel.find().sort("-createdAt").lean();
+    res.set("Cache-Control", "public, max-age=300");
+    return res.status(200).json(categories);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Server error, please try again later",
+      });
+  }
+};
+
   
 module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory}

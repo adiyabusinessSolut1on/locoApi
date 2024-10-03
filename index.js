@@ -62,7 +62,6 @@ mongoose
     console.log("connection failed", err);
   });
 app.use(require("./route/userRoute.js"));
-app.use("/api/users", usersRoute);
 app.use("/api/users",quiztestRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/users",pollRoute);
