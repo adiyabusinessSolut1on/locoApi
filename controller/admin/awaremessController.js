@@ -164,11 +164,6 @@ const getAll_Awareness = async (req, res) => {
   
   try {
     const response = await Awareness.find();
-    if (!response?.length > 0) {
-      return res
-        .status(403)
-        .json({ success: false, message: "No Awareness Found" });
-    }
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
