@@ -67,12 +67,11 @@ const getBlogsByMainCategory = async (req, res) => {
           { categoryId: { $in: subCategoryIds } },
           { categoryId: { $in: subSubCategoryIds } }, 
         ]
-      }).select('title slug thumbnail content comments') 
+      }).select('title slug thumnail content') 
         .sort({ createdAt: -1 }).limit(10).lean();
 
       return {
         name: category.name,
-        image: category.image, 
         blogs, 
       };
     }));
