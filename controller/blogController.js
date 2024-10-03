@@ -51,6 +51,40 @@ const GetBlogCategory = async (req, res) => {
       });
   }
 };
+const getBlogsByMainCategory = async (req, res) => {
+  try {
+    const categories = await BlogCategoryModel.find()
+      .select('name subCategories')
+      .lean();
+
+    const categoryBlogs = await Promise.all(categories.map(async (category) => {
+      const subCategoryIds = category.subCategories.map(subCat => subCat._id);
+      const subSubCategoryIds = category.subCategories.flatMap(subCat => 
+        subCat.subSubCategories.map(subSubCat => subSubCat._id)
+      );
+      const blogs = await Blog.find({
+        $or: [
+          { categoryId: category._id },
+          { categoryId: { $in: subCategoryIds } },
+          { categoryId: { $in: subSubCategoryIds } }, 
+        ]
+      }).select('title slug thumbnail content comments') 
+        .sort({ createdAt: -1 }).limit(10).lean();
+
+      return {
+        category: category.name,
+        blogs, 
+      };
+    }));
+
+    res.status(200).json(categoryBlogs);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error, please try again later',
+    });
+  }
+};
 
   
-module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory}
+module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory,getBlogsByMainCategory}

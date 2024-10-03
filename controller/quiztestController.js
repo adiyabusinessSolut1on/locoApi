@@ -37,7 +37,6 @@ const userComplteteQuiz = async (req, res) => {
         return res.status(403).json({ success: false, message: 'user not found' });
       }
       response.test_yourself.push(req.body);
-     
       await response.save();
       res.status(200).json({
         success: true,
@@ -75,6 +74,8 @@ const userComplteteQuiz = async (req, res) => {
     }
    
   };
+
+  
   const getAllTest = async (req, res) => {
     try {
       const response = await TestYourSelf.find().populate("questions");
