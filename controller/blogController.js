@@ -54,9 +54,8 @@ const GetBlogCategory = async (req, res) => {
 const getBlogsByMainCategory = async (req, res) => {
   try {
     const categories = await BlogCategoryModel.find()
-      .select('name subCategories')
+      .select('name subCategories image')
       .lean();
-
     const categoryBlogs = await Promise.all(categories.map(async (category) => {
       const subCategoryIds = category.subCategories.map(subCat => subCat._id);
       const subSubCategoryIds = category.subCategories.flatMap(subCat => 
@@ -72,7 +71,8 @@ const getBlogsByMainCategory = async (req, res) => {
         .sort({ createdAt: -1 }).limit(10).lean();
 
       return {
-        category: category.name,
+        name: category.name,
+        image: category.image, 
         blogs, 
       };
     }));
