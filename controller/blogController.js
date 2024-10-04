@@ -72,7 +72,7 @@ const getBlogsByMainCategory = async (req, res) => {
 
       return {
         name: category.name,
-        blogs, 
+        blogs,
       };
     }));
 
@@ -84,6 +84,16 @@ const getBlogsByMainCategory = async (req, res) => {
     });
   }
 };
-
+const searcBlog=async(req,res)=>{
+  try {
+    const searchTerm = req.query.q;
+    const menus = await Blog.find({
+      $or: [{ title: { $regex: searchTerm, $options: "i" } }],
+    });
+    res.status(200).json(menus);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+}
   
-module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory,getBlogsByMainCategory}
+module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory,getBlogsByMainCategory,searcBlog}

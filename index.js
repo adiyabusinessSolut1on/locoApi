@@ -43,12 +43,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-// app.use(cors({
-//   origin: 'http://localhost:5173', 
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true, 
-//   allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
-// }));
+
 
 app.get('/', (req, res) => {
   res.send('WebSocket server is running');
@@ -83,8 +78,8 @@ server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
 let onlineUsers = [];
-io.on("connection", (socket) => {
 
+io.on("connection", (socket) => {
   socket.on("join-room", (userId) => {
     socket.join(userId);
   });
