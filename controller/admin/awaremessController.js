@@ -163,7 +163,7 @@ const deleteAwareness = async (req, res) => {
 const getAll_Awareness = async (req, res) => {
   
   try {
-    const response = await Awareness.find();
+    const response = await Awareness.find().sort({ createdAt: -1 }).lean();
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });

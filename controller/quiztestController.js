@@ -74,24 +74,41 @@ const userComplteteQuiz = async (req, res) => {
     }
    
   };
-
-  
+ 
   const getAllTest = async (req, res) => {
     try {
-      const response = await TestYourSelf.find().populate("questions");
-      if (!response?.length > 0) {
-        return res
-          .status(200)
-          .json({ success: false, mesaage: "Test Not Found" });
-      }
+      const response = await TestYourSelf.aggregate([
+        { $sample: { size: await TestYourSelf.countDocuments() } },
+        {
+          $lookup: {
+            from: 'test_yourself_questions', 
+            localField: 'questions',
+            foreignField: '_id',
+            as: 'questions',
+          },
+        },
+      ]);
       res.status(200).json(response);
+      
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   };
+  
   const getAllQuiz = async (req, res) => {
     try {
-      const response = await Quiz.find().populate("questions").lean();
+      const response = await Quiz.aggregate([
+        { $sample: { size: await Quiz.countDocuments() } },
+        {
+          $lookup: {
+            from: 'quiz_questions', 
+            localField: 'questions',
+            foreignField: '_id',
+            as: 'questions',
+          },
+        },
+      ]);
+  
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: error.message });

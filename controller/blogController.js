@@ -36,7 +36,23 @@ const GetBlogByCategory = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+const GetSingleBlog = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Id is Required' });
+    }
+    const response = await Blog.findById(id);
 
+    if(!response){
+      return res.status(403).json({success:false,message:"Blog Not Found"})
+    }
+    res.status(200).json({success:true, data:response});
+  } catch (error) {
+    console.error('Error fetching blogs:', error.message || error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 const GetBlogCategory = async (req, res) => {
   try {
     const categories = await BlogCategoryModel.find().sort("-createdAt").lean();
@@ -96,4 +112,4 @@ const searcBlog=async(req,res)=>{
   }
 }
   
-module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory,getBlogsByMainCategory,searcBlog}
+module.exports = {GetBlogByCategoryId,GetBlogByCategory,GetBlogCategory,getBlogsByMainCategory,searcBlog,GetSingleBlog}
