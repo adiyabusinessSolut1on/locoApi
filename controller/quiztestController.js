@@ -77,39 +77,37 @@ const userComplteteQuiz = async (req, res) => {
  
   const getAllTest = async (req, res) => {
     try {
-      const response = await TestYourSelf.aggregate([
-        { $sample: { size: await TestYourSelf.countDocuments() } },
-        {
-          $lookup: {
-            from: 'test_yourself_questions', 
-            localField: 'questions',
-            foreignField: '_id',
-            as: 'questions',
-          },
-        },
-      ]);
-      res.status(200).json(response);
-      
+      const response = await TestYourSelf.find()
+        .populate("questions")
+        .lean()
+        .sort({ createdAt: -1 });
+
+      const randomizedResponse = response.map((test) => ({
+        ...test,
+        questions: test.questions.sort(() => Math.random() - 0.5),
+      }));
+
+      res.status(200).json(randomizedResponse);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   };
   
+  
+  
   const getAllQuiz = async (req, res) => {
     try {
-      const response = await Quiz.aggregate([
-        { $sample: { size: await Quiz.countDocuments() } },
-        {
-          $lookup: {
-            from: 'quiz_questions', 
-            localField: 'questions',
-            foreignField: '_id',
-            as: 'questions',
-          },
-        },
-      ]);
-  
-      res.status(200).json(response);
+      const response = await Quiz.find()
+        .populate("questions")
+        .lean()
+        .sort({ createdAt: -1 });
+
+      const randomizedResponse = response.map((quiz) => ({
+        ...quiz,
+        questions: quiz.questions.sort(() => Math.random() - 0.5),
+      }));
+
+      res.status(200).json(randomizedResponse);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
