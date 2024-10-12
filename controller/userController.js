@@ -201,7 +201,14 @@ const getAllPost = async (req, res) => {
 const getAllPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await Post.find({ user: userId });
+    const response = await Post.find({ user: userId }).populate({
+      path: 'user',
+      select: '-password -otp',
+    })
+    .populate({
+      path: 'comments.comment_user',
+      select: '-password -otp',
+    });
     if (!response.length > 0) {
       return res
         .status(404)
@@ -219,7 +226,34 @@ const getAllPostByUserId = async (req, res) => {
     });
   }
 };
-
+const getSinglePost = async (req, res) => {
+  const {id}=req.params
+  try {
+    const response = await Post.findById(id).populate({
+      path: 'user',
+      select: '_id name image email',
+    })
+    .populate({
+      path: 'comments.comment_user',
+      select: '_id name image email',
+    });
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "get post Successfully",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 const DeleteMutualPost = async (req, res) => {
   const {id}=req.params
    try {
@@ -895,5 +929,6 @@ module.exports = {
   deletePost,
   unLikePosts,
   SavePosts,
-  userLikedPosts
+  userLikedPosts,
+  getSinglePost
 };

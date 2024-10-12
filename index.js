@@ -71,7 +71,7 @@ app.use("/api/admin",sponsorRoute);
 app.use("/api/admin",quizRoute);
 app.use("/api/admin",testYourSelfRoute);
 app.use("/api/admin",DailyTaskRoute);
-app.use("/api/user/blog",Blog)
+app.use("/api/user/blog",Blog);
 
 
 server.listen(process.env.PORT, (port) => {

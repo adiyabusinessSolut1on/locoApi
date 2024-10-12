@@ -28,6 +28,7 @@ const {
   UpdatePost,
   deletePost,
   userLikedPosts,
+  getSinglePost,
   SavePosts,
   getSingleQuiz,getSingleTest,getAllTest,UpdateAnswer,QuizComplete,userComplteteQuiz,userComplteteTest
 } = require("../controller/userController");
@@ -61,8 +62,9 @@ router.put("/mutual-post/:id",isUser,UpdateMutualPost);
 router.delete("/mutual-post/:id",isUser,DeleteMutualPost);
 
 router.post("/post", usermiddleare, userPost);
-router.get("/get-all-post", usermiddleare, getAllPost);
+router.get("/get-all-post", getAllPost);
 router.get("/get-post-by-user", usermiddleare, getAllPostByUserId);
+router.get("/get-single-post/:id",getSinglePost)
 router.put("/post/:id",isUser,UpdatePost);
 router.delete("/post/:id",isUser,deletePost);
 
