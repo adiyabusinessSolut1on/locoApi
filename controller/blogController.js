@@ -7,7 +7,6 @@ const GetBlogByCategoryId = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Category ID is required' });
     }
     const blogs = await Blog.find({ categoryId })
-      .sort('-createdAt') 
       .populate('comments.comment_user', 'name email image')
       .lean();
 
@@ -25,11 +24,8 @@ const GetBlogByCategory = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Category is required' });
     }
     const blogs = await Blog.find({ categoryName: category })
-      .sort('-createdAt')
       .populate('comments.comment_user', 'name email image')
       .lean();
-    res.set('Cache-Control', 'public, max-age=300');
-
     res.status(200).json(blogs);
   } catch (error) {
     console.error('Error fetching blogs:', error.message || error);
@@ -55,7 +51,7 @@ const GetSingleBlog = async (req, res) => {
 };
 const GetBlogCategory = async (req, res) => {
   try {
-    const categories = await BlogCategoryModel.find().sort("-createdAt").lean();
+    const categories = await BlogCategoryModel.find().lean();
     res.set("Cache-Control", "public, max-age=300");
     return res.status(200).json(categories);
   } catch (error) {

@@ -37,7 +37,8 @@ const {
   getAllCategory,
   getAwarenessById,
   getAwarenessByCategory,
-  getAll_Awareness
+  getAll_Awareness,
+  getSingleAwareness
 } = require("../controller/admin/awaremessController");
 const { GetUserBlog ,AddCommentBlogById} = require("../controller/admin/blogs");
 const {
@@ -70,15 +71,14 @@ router.delete("/post/:id",isUser,deletePost);
 
 router.put("/blog/comment/:id",isUser,AddCommentBlogById);
 router.get("/get-all/awareness",getAll_Awareness);
+router.get("/get-single/awareness/:id",getSingleAwareness);
 router.put("/unsave-post",isUser,removePostFromUser);
-router.put("/post/unlike/:id",isUser,unLikePosts)
+router.put("/post/unlike/:id",isUser,unLikePosts);
 router.put("/post/like/:id",isUser,LikePosts);
 router.post("/post/comment/:id",isUser,CommentPost);
 router.put("/savepost",isUser,savePostInUser);
 router.get("/saved/posts",isUser,SavePosts);
 router.get("/liked/posts",isUser,userLikedPosts);
-
-
 
 router.get("/get-all-mutual-post", usermiddleare, getAllFormPost);
 router.get(

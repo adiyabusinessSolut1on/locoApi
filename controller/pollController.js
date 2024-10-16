@@ -107,11 +107,74 @@ const getMixedpollpost = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const polllikeunlike=async(req,res)=>{
+  const { id } = req.params;
+  const userId = req.userId;
+  try {
+
+    const poll = await Poll.findById(id);
+    if (!poll) {
+      return res.status(404).json({ message: "Poll not found" });
+    }
+
+    const isLiked = poll.like.includes(userId);
+
+    if (isLiked) {
+      poll.like.pull(userId);
+    } else {
+      poll.like.push(userId);
+    }
+
+    await poll.save();
+
+    return res.status(200).json({
+      message: isLiked ? "Unliked the poll" : "Liked the poll",
+      poll,
+    });
+  } catch (error) {
+   
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+}
+
+
+const commentPoll = async (req, res) => {
+  const { comment } = req.body;
+  const { id } = req.params;
+  const userId = req.userId;
+  try {
+    const response = await Poll.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          comments: {
+            comment,
+            comment_user: userId,
+          },
+        },
+      },
+      { new: true }
+    );
+    if (!response) {
+      return res.status(404).json({ message: "Poll not found" });
+    }
+    return res
+      .status(201)
+      .json({ success: true, message: "Comment Added Successfully" });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server error" });
+  }
+};
 module.exports = {
   createPoll,
   getPolls,
   getPollById,
   updatePoll,
   deletePoll,
-  getMixedpollpost
+  getMixedpollpost,
+  polllikeunlike,
+  commentPoll
 };

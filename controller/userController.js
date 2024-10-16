@@ -396,8 +396,6 @@ const LikePosts = async (req, res) => {
 const userLikedPosts = async (req, res) => {
   const userId = req.userId;
   try {
-   
-
     const response = await User.findById(userId).populate("likedPosts")
     if (!response) {
       return res
@@ -415,6 +413,7 @@ const userLikedPosts = async (req, res) => {
     });
   }
 };
+
 const SavePosts = async (req, res) => {
   const userId = req.userId;
   try {
