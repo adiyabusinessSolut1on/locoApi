@@ -97,6 +97,9 @@ const getMixedpollpost = async (req, res) => {
     }).populate({
       path:"userId",
       select:"name email image"
+    }).populate({
+      path: 'comments.comment_user',
+      select: 'name email image'
     }).lean();
     const content = [...posts, ...polls].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
