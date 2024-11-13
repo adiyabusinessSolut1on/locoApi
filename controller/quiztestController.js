@@ -37,7 +37,6 @@ const userComplteteQuiz = async (req, res) => {
         return res.status(403).json({ success: false, message: 'user not found' });
       }
       response.test_yourself.push(req.body);
-     
       await response.save();
       res.status(200).json({
         success: true,
@@ -75,35 +74,47 @@ const userComplteteQuiz = async (req, res) => {
     }
    
   };
+ 
   const getAllTest = async (req, res) => {
     try {
-      const response = await TestYourSelf.find().populate("questions");
-      if (!response?.length > 0) {
-        return res
-          .status(200)
-          .json({ success: false, mesaage: "Test Not Found" });
-      }
-      res.status(200).json(response);
+      const response = await TestYourSelf.find()
+        .populate("questions")
+        .lean()
+        .sort({ createdAt: -1 });
+
+      const randomizedResponse = response.map((test) => ({
+        ...test,
+        questions: test.questions.sort(() => Math.random() - 0.5),
+      }));
+
+      res.status(200).json(randomizedResponse);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   };
+  
+  
+  
   const getAllQuiz = async (req, res) => {
     try {
-      const response = await Quiz.find().populate("questions");
-      if (!response?.length > 0) {
-        return res
-          .status(200)
-          .json({ success: false, mesaage: "Quiz Not Found" });
-      }
-      res.status(200).json(response);
+      const response = await Quiz.find()
+        .populate("questions")
+        .lean()
+        .sort({ createdAt: -1 });
+
+      const randomizedResponse = response.map((quiz) => ({
+        ...quiz,
+        questions: quiz.questions.sort(() => Math.random() - 0.5),
+      }));
+
+      res.status(200).json(randomizedResponse);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   };
   const getAllDailyTask = async (req, res) => {
     try {
-      const response = await DailyTask.find();
+      const response = await DailyTask.find().lean();
       if (!response?.length > 0) {
         return res
           .status(403)
@@ -119,7 +130,7 @@ const userComplteteQuiz = async (req, res) => {
 
   const getAllQuizTestCategory = async (req, res) => {
     try {
-      const response = await QuizTestCategory.find();
+      const response = await QuizTestCategory.find().lean();
       if (!response?.length > 0) {
         return res
           .status(200)

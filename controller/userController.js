@@ -4,10 +4,10 @@ const User = require("../model/user");
 const Post = require("../model/post");
 const Mutual = require("../model/mutual");
 const jwt = require("jsonwebtoken");
-const TestYourSelf=require("../model/test_yourself/text_yourself");
-const TestYourSelfQuestion=require("../model/test_yourself/testYourSelfQuestionModel");
-const Quiz=require("../model/quiz/quizModel")
-const QuizQuestion=require("../model/quiz/quizquestions")
+const TestYourSelf = require("../model/test_yourself/text_yourself");
+const TestYourSelfQuestion = require("../model/test_yourself/testYourSelfQuestionModel");
+const Quiz = require("../model/quiz/quizModel");
+const QuizQuestion = require("../model/quiz/quizquestions");
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password, designation, division } =
     req.body;
@@ -26,8 +26,8 @@ const UserRegister = async (req, res) => {
       email: email,
       mobile: mobile,
       password: hashPassword,
-      designation: designation,
-      division: division,
+      // designation: designation,
+      // division: division,
     });
 
     await newUser.save();
@@ -84,7 +84,8 @@ const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
       .select("-password, -savePosts, -likedPosts")
-      .select("-otp").select("-password");
+      .select("-otp")
+      .select("-password");
     if (!user) {
       return res
         .status(403)
@@ -99,33 +100,31 @@ const getUser = async (req, res) => {
   }
 };
 
-
 const deletePost = async (req, res) => {
-  const {id}=req.params
-   try {
-     const response = await Post.findByIdAndDelete(id);
-     if (!response) {
-       return res
-         .status(404)
-         .json({ success: false, message: "Data Not Found" });
-     }
-     res.status(200).json({
-       success: true,
-       message: " post Delete",
-     
-     });
-   } catch (err) {
-     res.status(500).json({
-       success: false,
-       message: err.message,
-     });
-   }
- };
-const UpdatePost = async (req, res) => {
- const {id}=req.params
+  const { id } = req.params;
   try {
-    const response = await Post.findByIdAndUpdate(id,req.body,{
-      new:true
+    const response = await Post.findByIdAndDelete(id);
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: " post Delete",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+const UpdatePost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await Post.findByIdAndUpdate(id, req.body, {
+      new: true,
     });
     if (!response) {
       return res
@@ -171,13 +170,14 @@ const userPost = async (req, res) => {
 };
 const getAllPost = async (req, res) => {
   try {
-    const response = await Post.find().populate({
-        path: 'user',
-        select: '-password -otp',
+    const response = await Post.find()
+      .populate({
+        path: "user",
+        select: "-password -otp",
       })
       .populate({
-        path: 'comments.comment_user',
-        select: '-password -otp',
+        path: "comments.comment_user",
+        select: "-password -otp",
       });
 
     if (!response.length > 0) {
@@ -201,7 +201,15 @@ const getAllPost = async (req, res) => {
 const getAllPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await Post.find({ user: userId });
+    const response = await Post.find({ user: userId })
+      .populate({
+        path: "user",
+        select: "-password -otp",
+      })
+      .populate({
+        path: "comments.comment_user",
+        select: "-password -otp",
+      });
     if (!response.length > 0) {
       return res
         .status(404)
@@ -219,33 +227,60 @@ const getAllPostByUserId = async (req, res) => {
     });
   }
 };
-
-const DeleteMutualPost = async (req, res) => {
-  const {id}=req.params
-   try {
-     const response = await Mutual.findByIdAndDelete(id);
-     if (!response) {
-       return res
-         .status(404)
-         .json({ success: false, message: "Data Not Found" });
-     }
-     res.status(200).json({
-       success: true,
-       message: " Mutual post Delete",
-     
-     });
-   } catch (err) {
-     res.status(500).json({
-       success: false,
-       message: err.message,
-     });
-   }
- };
-const UpdateMutualPost = async (req, res) => {
- const {id}=req.params
+const getSinglePost = async (req, res) => {
+  const { id } = req.params;
   try {
-    const response = await Mutual.findByIdAndUpdate(id,req.body,{
-      new:true
+    const response = await Post.findById(id)
+      .populate({
+        path: "user",
+        select: "_id name image email",
+      })
+      .populate({
+        path: "comments.comment_user",
+        select: "_id name image email",
+      });
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "get post Successfully",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+const DeleteMutualPost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await Mutual.findByIdAndDelete(id);
+    if (!response) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data Not Found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: " Mutual post Delete",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+const UpdateMutualPost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await Mutual.findByIdAndUpdate(id, req.body, {
+      new: true,
     });
     if (!response) {
       return res
@@ -331,7 +366,7 @@ const LikePosts = async (req, res) => {
       userId,
       { $push: { likedPosts: id } },
       { new: true }
-    )
+    );
     if (!updatedUser) {
       return res
         .status(404)
@@ -340,16 +375,18 @@ const LikePosts = async (req, res) => {
     const post = await Post.findByIdAndUpdate(
       id,
       { $inc: { like: 1 } },
-      { new: true } 
+      { new: true }
     );
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Post liked successfully',
+      message: "Post liked successfully",
       data: post,
     });
   } catch (error) {
@@ -362,9 +399,7 @@ const LikePosts = async (req, res) => {
 const userLikedPosts = async (req, res) => {
   const userId = req.userId;
   try {
-   
-
-    const response = await User.findById(userId).populate("likedPosts")
+    const response = await User.findById(userId).populate("likedPosts");
     if (!response) {
       return res
         .status(404)
@@ -381,10 +416,11 @@ const userLikedPosts = async (req, res) => {
     });
   }
 };
+
 const SavePosts = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await User.findById(userId).populate("savePosts")
+    const response = await User.findById(userId).populate("savePosts");
     if (!response) {
       return res
         .status(404)
@@ -410,7 +446,7 @@ const unLikePosts = async (req, res) => {
       userId,
       { $pull: { likedPosts: id } },
       { new: true }
-    )
+    );
     if (!updatedUser) {
       return res
         .status(404)
@@ -419,16 +455,18 @@ const unLikePosts = async (req, res) => {
     const post = await Post.findByIdAndUpdate(
       id,
       { $inc: { like: -1 } },
-      { new: true } 
+      { new: true }
     );
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Post Un-liked successfully',
+      message: "Post Un-liked successfully",
       data: post,
     });
   } catch (error) {
@@ -442,20 +480,22 @@ const CommentPost = async (req, res) => {
   try {
     const { id } = req.params;
     const { comment } = req.body;
-const userId=req.userId
+    const userId = req.userId;
     const post = await Post.findById(id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
-    const newComment = { comment:comment, comment_user:userId };
+    const newComment = { comment: comment, comment_user: userId };
     post.comments.push(newComment);
     await post.save();
 
     res.status(200).json({
       success: true,
-      message: 'Comment added successfully',
+      message: "Comment added successfully",
       data: post,
     });
   } catch (error) {
@@ -652,7 +692,7 @@ const getAllQuiz = async (req, res) => {
   }
 };
 const getSingleQuiz = async (req, res) => {
-  const {id}=req.params
+  const { id } = req.params;
   try {
     const response = await Quiz.findById(id).populate("questions");
     if (!response) {
@@ -679,7 +719,7 @@ const getAllTest = async (req, res) => {
   }
 };
 const getSingleTest = async (req, res) => {
-  const {id}=req.params
+  const { id } = req.params;
   try {
     const response = await TestYourSelf.findById(id).populate("questions");
     if (!response) {
@@ -693,24 +733,26 @@ const getSingleTest = async (req, res) => {
   }
 };
 const UpdateAnswer = async (req, res) => {
-  const {id}=req.params
-  const {answer}=req.body
+  const { id } = req.params;
+  const { answer } = req.body;
   try {
     const question = await QuizQuestion.findById(id);
 
     if (!question) {
-      return res.status(404).json({ success: false, message: 'Question not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Question not found" });
     }
 
     question.actualresult = answer;
-    question.isTrue = (answer === question.predicted_result);
+    question.isTrue = answer === question.predicted_result;
 
     await question.save();
 
     res.status(200).json({
       success: true,
       data: question,
-      message: 'Answer submitted successfully',
+      message: "Answer submitted successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -720,14 +762,18 @@ const UpdateAnswer = async (req, res) => {
   }
 };
 const QuizComplete = async (req, res) => {
-  const {id}=req.params
+  const { id } = req.params;
   try {
-    const quiz = await Quiz.findById(id).populate('questions');
+    const quiz = await Quiz.findById(id).populate("questions");
     if (!quiz) {
-      return res.status(404).json({ success: false, message: 'Quiz not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Quiz not found" });
     }
-    const answeredQuestions = quiz?.questions.filter(q => q.isTrue !== undefined);
-    const rightAnswers = answeredQuestions.filter(q => q.isTrue).length;
+    const answeredQuestions = quiz?.questions.filter(
+      (q) => q.isTrue !== undefined
+    );
+    const rightAnswers = answeredQuestions.filter((q) => q.isTrue).length;
     const wrongAnswers = answeredQuestions.length - rightAnswers;
     const score = (rightAnswers / quiz.questions.length) * 100;
     const updatedQuiz = await Quiz.findByIdAndUpdate(
@@ -743,7 +789,7 @@ const QuizComplete = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Quiz results updated successfully',
+      message: "Quiz results updated successfully",
       data: updatedQuiz,
     });
   } catch (error) {
@@ -752,27 +798,28 @@ const QuizComplete = async (req, res) => {
       message: error.message,
     });
   }
- 
 };
 const UpdateTestAnswer = async (req, res) => {
-  const {id}=req.params
-  const {answer}=req.body
+  const { id } = req.params;
+  const { answer } = req.body;
   try {
     const question = await TestYourSelfQuestion.findById(id);
 
     if (!question) {
-      return res.status(404).json({ success: false, message: 'Question not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Question not found" });
     }
 
     question.actualresult = answer;
-    question.isTrue = (answer === question.predicted_result);
+    question.isTrue = answer === question.predicted_result;
 
     await question.save();
 
     res.status(200).json({
       success: true,
       data: question,
-      message: 'Answer submitted successfully',
+      message: "Answer submitted successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -782,14 +829,18 @@ const UpdateTestAnswer = async (req, res) => {
   }
 };
 const TestComplete = async (req, res) => {
-  const {id}=req.params
+  const { id } = req.params;
   try {
-    const quiz = await TestYourSelf.findById(id).populate('questions');
+    const quiz = await TestYourSelf.findById(id).populate("questions");
     if (!quiz) {
-      return res.status(404).json({ success: false, message: 'Test not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Test not found" });
     }
-    const answeredQuestions = quiz?.questions.filter(q => q.isTrue !== undefined);
-    const rightAnswers = answeredQuestions.filter(q => q.isTrue).length;
+    const answeredQuestions = quiz?.questions.filter(
+      (q) => q.isTrue !== undefined
+    );
+    const rightAnswers = answeredQuestions.filter((q) => q.isTrue).length;
     const wrongAnswers = answeredQuestions.length - rightAnswers;
     const score = (rightAnswers / quiz.questions.length) * 100;
     const resp = await TestYourSelf.findByIdAndUpdate(
@@ -805,7 +856,7 @@ const TestComplete = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Test results updated successfully',
+      message: "Test results updated successfully",
       data: resp,
     });
   } catch (error) {
@@ -814,22 +865,23 @@ const TestComplete = async (req, res) => {
       message: error.message,
     });
   }
- 
 };
 const userComplteteQuiz = async (req, res) => {
-  const id=req.userId
+  const id = req.userId;
   try {
     const response = await User.findById(id);
     if (!response) {
-      return res.status(404).json({ success: false, message: 'user not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "user not found" });
     }
     response.quiz.push(req.body);
-   
+
     await response.save();
     res.status(200).json({
       success: true,
-      message: 'Quiz data added to user successfully',
-      data: response
+      message: "Quiz data added to user successfully",
+      data: response,
     });
   } catch (error) {
     res.status(500).json({
@@ -837,22 +889,23 @@ const userComplteteQuiz = async (req, res) => {
       message: error.message,
     });
   }
- 
 };
 const userComplteteTest = async (req, res) => {
-  const id=req.userId
+  const id = req.userId;
   try {
     const response = await User.findById(id);
     if (!response) {
-      return res.status(403).json({ success: false, message: 'user not found' });
+      return res
+        .status(403)
+        .json({ success: false, message: "user not found" });
     }
     response.test_yourself.push(req.body);
-   
+
     await response.save();
     res.status(200).json({
       success: true,
-      message: 'Test data added to user successfully',
-      data: response
+      message: "Test data added to user successfully",
+      data: response,
     });
   } catch (error) {
     res.status(500).json({
@@ -860,7 +913,6 @@ const userComplteteTest = async (req, res) => {
       message: error.message,
     });
   }
- 
 };
 module.exports = {
   getUser,
@@ -895,5 +947,6 @@ module.exports = {
   deletePost,
   unLikePosts,
   SavePosts,
-  userLikedPosts
+  userLikedPosts,
+  getSinglePost,
 };

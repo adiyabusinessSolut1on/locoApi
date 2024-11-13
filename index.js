@@ -63,7 +63,6 @@ mongoose
     console.log("connection failed", err);
   });
 app.use(require("./route/userRoute.js"));
-app.use("/api/users", usersRoute);
 app.use("/api/users", quiztestRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/users", pollRoute);
@@ -85,6 +84,7 @@ server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
 let onlineUsers = [];
+
 io.on("connection", (socket) => {
   socket.on("join-room", (userId) => {
     socket.join(userId);

@@ -163,18 +163,25 @@ const deleteAwareness = async (req, res) => {
 const getAll_Awareness = async (req, res) => {
   
   try {
-    const response = await Awareness.find();
-    if (!response?.length > 0) {
-      return res
-        .status(403)
-        .json({ success: false, message: "No Awareness Found" });
-    }
+    const response = await Awareness.find().sort({ createdAt: -1 }).lean();
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+const getSingleAwareness=async(req,res)=>{
+  const {id}=req.params
+  try{
+const response=await Awareness.findById(id);
+if(!response) return res.status(404).json({success:false, message:'Awareness Data Not Found'});
+
+return res.status(200).json({success:true, data:response})
+  }catch(err){
+    return res.status(500).json({success:false, message:"Internal Server Error"});
+  }
+}
 module.exports = {
+  getSingleAwareness,
   getAll_Awareness,
   createCategory,
   UpdateCategory,

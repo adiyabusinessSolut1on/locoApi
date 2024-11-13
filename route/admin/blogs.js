@@ -15,10 +15,6 @@ const {
   deleteSubCategory,
   deleteSubSubCategory,
   deleteInnerCategory,
-  createBlogMainCategory,
-  createBlogSubCategory,
-  createBlogSubSubCategory,
-  createBlogInnerCategory,
   CreateBlogs,GetUserBlog,
   CreateNEWBlog,
   GetAllBlogs,
@@ -31,10 +27,6 @@ const {
 router.get("/blog/userblog",GetUserBlog);
 router.post("/blog/create-blogs",CreateBlogs); 
 router.post("/blog/create",CreateNEWBlog)
-// router.post("/blog/create-blog-innercategory",createBlogInnerCategory);
-// router.post("/blog/createblogsubcategory",createBlogSubCategory);
-// router.post("/blog/blog-subsubcategory",createBlogSubSubCategory);
-// router.post("/blog/createmain",createBlogMainCategory);
 
 router.get("/blog/getallblogs",GetAllBlogs)
 router.put("/blog/update-blog/:id",UpdateBlogById);

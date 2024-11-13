@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const comment=new mongoose.Schema({
+  comment:{
+      type:String,
+  },
+  comment_user:{
+      type: mongoose.Schema.Types.ObjectId,
+          ref: "user",
+  }
+});
 
 const pollSchema = new Schema(
   {
@@ -24,6 +33,11 @@ const pollSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    like: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    }],
+    comments: [comment],
     options: [
       {
         percent: {
