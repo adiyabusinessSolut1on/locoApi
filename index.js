@@ -12,21 +12,22 @@ const { createServer } = require("http");
 const usersRoute = require("./route/userRoute");
 const chatsRoute = require("./route/chatsRoute");
 const messagesRoute = require("./route/messagesRoute");
-const blogRoute=require("./route/admin/blogs.js")
-const videoRoute=require("./route/admin/video.js");
-const adminRoute=require("./route/admin/adminRoute.js");
-const awarenessRoute=require("./route/admin/awarenessRoute.js");
-const importantLinks=require("./route/admin/implinksRoute.js");
-const sponsorRoute=require("./route/admin/sponsorRoute.js")
-const quizRoute=require("./route/admin/quizRoute.js");
-const testYourSelfRoute=require("./route/admin/test_yourselfRoute.js")
-const DailyTaskRoute=require("./route/admin/dailytaskRoute.js");
-const quiztestRoute=require("./route/quiztestRoutes.js");
-const pollRoute=require("./route/pollRoute.js");
-const Blog=require("./route/blog.js")
+const blogRoute = require("./route/admin/blogs.js");
+const videoRoute = require("./route/admin/video.js");
+const adminRoute = require("./route/admin/adminRoute.js");
+const awarenessRoute = require("./route/admin/awarenessRoute.js");
+const importantLinks = require("./route/admin/implinksRoute.js");
+const sponsorRoute = require("./route/admin/sponsorRoute.js");
+const quizRoute = require("./route/admin/quizRoute.js");
+const testYourSelfRoute = require("./route/admin/test_yourselfRoute.js");
+const DailyTaskRoute = require("./route/admin/dailytaskRoute.js");
+const quiztestRoute = require("./route/quiztestRoutes.js");
+const pollRoute = require("./route/pollRoute.js");
+const Blog = require("./route/blog.js");
+const reportRoute = require("./route/reportRoute.js");
 const server = createServer(app);
 
-const Poll = require('./model/pollModel.js');
+const Poll = require("./model/pollModel.js");
 const checkTimeLimits = async () => {
   const now = new Date();
   await Poll.updateMany(
@@ -44,14 +45,14 @@ const io = new Server(server, {
   },
 });
 // app.use(cors({
-//   origin: 'http://localhost:5173', 
+//   origin: 'http://localhost:5173',
 //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true, 
+//   credentials: true,
 //   allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
 // }));
 
-app.get('/', (req, res) => {
-  res.send('WebSocket server is running');
+app.get("/", (req, res) => {
+  res.send("WebSocket server is running");
 });
 mongoose
   .connect(process.env.MONGO_URL)
@@ -63,33 +64,31 @@ mongoose
   });
 app.use(require("./route/userRoute.js"));
 app.use("/api/users", usersRoute);
-app.use("/api/users",quiztestRoute);
+app.use("/api/users", quiztestRoute);
 app.use("/api/users", usersRoute);
-app.use("/api/users",pollRoute);
+app.use("/api/users", pollRoute);
 app.use("/api/chats", chatsRoute);
 app.use("/api/messages", messagesRoute);
-app.use("/api/admin",blogRoute);
-app.use("/api/admin",videoRoute);
-app.use("/api/admin",adminRoute)
-app.use("/api/admin",awarenessRoute);
-app.use("/api/admin",importantLinks);
-app.use("/api/admin",sponsorRoute);
-app.use("/api/admin",quizRoute);
-app.use("/api/admin",testYourSelfRoute);
-app.use("/api/admin",DailyTaskRoute);
-app.use("/api/user/blog",Blog)
-
+app.use("/api/admin", blogRoute);
+app.use("/api/admin", videoRoute);
+app.use("/api/admin", adminRoute);
+app.use("/api/admin", awarenessRoute);
+app.use("/api/admin", importantLinks);
+app.use("/api/admin", sponsorRoute);
+app.use("/api/admin", quizRoute);
+app.use("/api/admin", testYourSelfRoute);
+app.use("/api/admin", DailyTaskRoute);
+app.use("/api/user/blog", Blog);
+app.use("/api/report", reportRoute);
 
 server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
 let onlineUsers = [];
 io.on("connection", (socket) => {
-
   socket.on("join-room", (userId) => {
     socket.join(userId);
   });
-
 
   socket.on("send-message", (message) => {
     io.to(message.members[0])
@@ -106,7 +105,6 @@ io.on("connection", (socket) => {
   socket.on("typing", (data) => {
     io.to(data.members[0]).to(data.members[1]).emit("started-typing", data);
   });
-
 
   socket.on("came-online", (userId) => {
     if (!onlineUsers.includes(userId)) {
