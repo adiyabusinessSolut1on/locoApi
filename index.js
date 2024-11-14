@@ -78,7 +78,7 @@ app.use("/api/admin", quizRoute);
 app.use("/api/admin", testYourSelfRoute);
 app.use("/api/admin", DailyTaskRoute);
 app.use("/api/user/blog", Blog);
-app.use("/api/report", reportRoute);
+app.use("/api/admin", reportRoute);
 
 server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);

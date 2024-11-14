@@ -8,8 +8,8 @@ const {
 
 const { isUser, isAdmin } = require("../middleware/rolebaseuserValidate");
 
-router.get("/", isAdmin, getReports);
-router.put("/:id", isAdmin, updateReportStatus);
-router.post("/", isUser, reportPost);
+router.get("/report", isAdmin, getReports);
+router.put("/report/:id", isAdmin, updateReportStatus);
+router.post("/report", isUser, reportPost);
 
 module.exports = router;
