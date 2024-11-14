@@ -95,7 +95,9 @@ const updateReportStatus = async (req, res) => {
     const userEmail = user.email;
     sendReportMail(userEmail, subject, message);
 
-    return res.status(200).json({ message: "Report status updated", report });
+    return res
+      .status(200)
+      .json({ success: true, message: "Report status updated", report });
   } catch (error) {
     return res
       .status(500)
