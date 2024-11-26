@@ -1,17 +1,14 @@
 const videCategory = require("../../model/videocategoryModel");
 const Video = require("../../model/videoModel");
+const { sendNotifcationToAllUsers } = require("../notification");
 
 const createVideoCategory = async (req, res) => {
   try {
     const response = new videCategory(req.body);
     const saveresponse = await response.save();
-    res
-      .status(201)
-      .json({
-        success: true,
-        data: saveresponse,
-        message: "Video category Created",
-      });
+
+    await sendNotifcationToAllUsers(title, content, "blog", req.userId)
+    res.status(201).json({ success: true, data: saveresponse, message: "Video category Created" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -37,13 +34,7 @@ const UpdateVideoCategory = async (req, res) => {
       }
     );
     if (response) {
-      res
-        .status(200)
-        .json({
-          success: true,
-          data: response,
-          message: "Video Category Updated",
-        });
+      res.status(200).json({ success: true, data: response, message: "Video Category Updated" });
     } else {
       res.status(404).json({ success: false, message: "Category not found" });
     }
@@ -56,9 +47,7 @@ const deleteVideoCategory = async (req, res) => {
   try {
     const response = await videCategory.findByIdAndDelete(req.params.id);
     if (response) {
-      res
-        .status(200)
-        .json({ success: true, message: "Video Category deleted" });
+      res.status(200).json({ success: true, message: "Video Category deleted" });
     } else {
       res.status(404).json({ success: false, message: "Category not found" });
     }
@@ -68,12 +57,12 @@ const deleteVideoCategory = async (req, res) => {
 };
 
 const UploadVideo = async (req, res) => {
+  // console.log("req.body: ", req.body);
+
   try {
     const response = await Video.create(req.body);
     if (response) {
-      res
-        .status(201)
-        .json({ success: true, data: response, message: "Video Uploaded" });
+      res.status(201).json({ success: true, data: response, message: "Video Uploaded" });
     } else {
       res.status(400).json({ success: false, message: "Video not Uploaded" });
     }
@@ -85,7 +74,11 @@ const UploadVideo = async (req, res) => {
 const GetALLVideo = async (req, res) => {
   try {
     const response = await Video.find();
-    res.status(200).json(response);
+    if (!response.length > 0) {
+      res.status(404).json({ success: false, message: "Video not found" });
+    } else {
+      res.status(200).json(response);
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -94,13 +87,12 @@ const GetALLVideo = async (req, res) => {
 const GetVideoByCategory = async (req, res) => {
   const { category } = req.params;
   try {
-    if (!category)
-      return res
-        .status(403)
-        .json({ success: false, message: "Video not found" });
     const response = await Video.find({ category: category });
-
-    res.status(200).json({ success: true, data: response });
+    if (!response?.length > 0) {
+      res.status(403).json({ success: false, message: "Video not found" });
+    } else {
+      res.status(200).json({ success: true, data: response });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -130,9 +122,7 @@ const UpdateVideo = async (req, res) => {
     if (!response) {
       res.status(404).json({ success: false, message: "Video not found" });
     } else {
-      res
-        .status(203)
-        .json({ success: true, data: response, message: "Video updated" });
+      res.status(203).json({ success: true, data: response, message: "Video updated" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

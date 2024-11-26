@@ -17,10 +17,16 @@ const userQuiz = new mongoose.Schema({
     default: false,
   },
 });
-const userTask=new mongoose.Schema({
+const userTask = new mongoose.Schema({
   taskId: { type: mongoose.Schema.Types.ObjectId, ref: "dailytask" },
-  isComplete:{type:Boolean}
+  isComplete: { type: Boolean }
 })
+
+/* const userDailyTask = new mongoose.Schema({
+  dailyTaskId: [userTask],
+  isComplete: { type: Boolean }
+}, { timestamps: true }); */
+
 const userTest = new mongoose.Schema({
   testId: { type: mongoose.Schema.Types.ObjectId, ref: "test_yourself" },
 
@@ -51,9 +57,7 @@ const userModel = new mongoose.Schema(
       type: String,
       required: true,
     },
-    mobile: {
-      type: Number,
-    },
+    mobile: { type: Number },
     password: {
       type: String,
     },
@@ -74,18 +78,18 @@ const userModel = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "post",
     }],
-    likedPosts: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "post",
-    }],
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
+    fcmToken: {
+      type: String,
+      // unique: true,
+    },
     quiz: [userQuiz],
     test_yourself: [userTest],
-    daily_task:[userTask]
+    daily_task: [userTask]
   },
   {
     timestamps: true,

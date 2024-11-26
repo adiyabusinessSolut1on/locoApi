@@ -7,9 +7,6 @@ const QuizSchema = new mongoose.Schema(
       type: String,
       required:true
     },
-    category:{
-      type:String
-    },
     score: {
       type: Number,
     },

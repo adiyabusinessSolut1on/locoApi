@@ -1,23 +1,21 @@
 const mongoose = require("mongoose");
 
-const comment=new mongoose.Schema({
-    comment:{
-        type:String,
-    },
-    comment_user:{
-        type: mongoose.Schema.Types.ObjectId,
-            ref: "user",
-    }
+const comment = new mongoose.Schema({
+  comment: {
+    type: String,
+  },
+  comment_user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+  }
 })
+
+
 const postModel = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-    },
-    type:{
-      type:String,
-      default:"post"
     },
     thumnail: {
       type: String,
@@ -33,9 +31,7 @@ const postModel = new mongoose.Schema(
     },
     comments: [comment],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true, }
 );
 
 const Post = mongoose.model("post", postModel);

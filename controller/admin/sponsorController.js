@@ -90,7 +90,6 @@ const deleteCompany = async (req, res) => {
   }
 };
 const createProduct = async (req, res) => {
-
     const { companyId } = req.body;
     try {
       const response = await SponsorProduct.create(req.body);

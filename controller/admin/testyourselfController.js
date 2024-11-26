@@ -44,9 +44,7 @@ const getAllTest = async (req, res) => {
   try {
     const response = await TestYourSelf.find().populate("questions");
     if (!response?.length > 0) {
-      return res
-        .status(200)
-        .json({ success: false, mesaage: "Test Not Found" });
+      return res.status(404).json({ success: false, mesaage: "Test Not Found" });
     }
     res.status(200).json(response);
   } catch (error) {
