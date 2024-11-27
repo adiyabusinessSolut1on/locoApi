@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { getReports, updateReportStatus, reportPost, } = require("../controller/reportController");
+const {
+  getReports,
+  updateReportStatus,
+  reportPost,
+} = require("../controller/reportController");
 
 const { isUser, isAdmin } = require("../middleware/rolebaseuserValidate");
 

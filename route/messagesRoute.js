@@ -38,11 +38,20 @@ router.post("/new-message", async (req, res) => {
 
 router.get("/get-all-messages/:chatId", async (req, res) => {
   try {
-    const messages = await Message.find({ chat: req.params.chatId, }).sort({ createdAt: 1 });
-
-    return res.send({ success: true, message: "Messages fetched successfully", data: messages, });
+    const messages = await Message.find({
+      chat: req.params.chatId,
+    }).sort({ createdAt: 1 });
+    res.send({
+      success: true,
+      message: "Messages fetched successfully",
+      data: messages,
+    });
   } catch (error) {
-    return res.send({ success: false, message: "Error fetching messages", error: error.message, });
+    res.send({
+      success: false,
+      message: "Error fetching messages",
+      error: error.message,
+    });
   }
 });
 

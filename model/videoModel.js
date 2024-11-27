@@ -30,10 +30,6 @@ const videoModel = new mongoose.Schema(
       type: String,
       require: true,
     },
-    isYoutube: {
-      type: Boolean,
-      default: false,
-    }
   },
   {
     timestamps: true,

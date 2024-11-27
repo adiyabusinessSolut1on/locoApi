@@ -2,21 +2,25 @@ const mongoose = require("mongoose");
 
 const TestYourSelfquestionSchema = new mongoose.Schema(
   {
-    name:[ {
+    name: {
       type: String,
-      required:true
-    }],
-
+      required: true,
+    },
+    image: [
+      {
+        type: String,
+      },
+    ],
     options: [
       {
         type: String,
-        required:true
+        required: true,
       },
     ],
 
     predicted_result: {
       type: String,
-      required:true
+      required: true,
     },
     actualresult: {
       type: String,
@@ -33,5 +37,8 @@ const TestYourSelfquestionSchema = new mongoose.Schema(
   }
 );
 
-const TestYourSelfQuestion = mongoose.model("test_yourself_question", TestYourSelfquestionSchema);
+const TestYourSelfQuestion = mongoose.model(
+  "test_yourself_question",
+  TestYourSelfquestionSchema
+);
 module.exports = TestYourSelfQuestion;
