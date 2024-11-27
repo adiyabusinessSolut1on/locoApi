@@ -3,6 +3,7 @@ require("dotenv").config();
 const checkRole = (requiredRole) => (req, res, next) => {
   const authToken = req.headers.authorization;
   const cookieToken = req?.cookies?.authorization;
+
   let token;
   if (authToken) {
     token = authToken;
