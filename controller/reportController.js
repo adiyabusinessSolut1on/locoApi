@@ -2,6 +2,7 @@ const User = require("../model/user");
 const Report = require("../model/report");
 const sendReportMail = require("../email-templates/reportEmail");
 const { sendMessage } = require("../services/notification");
+const Post = require("../model/post");
 
 const reportPost = async (req, res) => {
   try {

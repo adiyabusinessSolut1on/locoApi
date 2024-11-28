@@ -11,7 +11,7 @@ exports.getNotificationById = async (req, res) => {
         if (!id) {
             return res.status(403).json({ success: false, message: "Access denied." });
         }
-        const result = await Notification.find({ recipient: id })
+        const result = await Notification.find({ recipient: id }).sort({ createdAt: -1 });
         // console.log("result: ", result);
 
         if (result) {
