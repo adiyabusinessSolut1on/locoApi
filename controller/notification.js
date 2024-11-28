@@ -34,7 +34,9 @@ exports.sendNotifcationToAllUsers = async (title, description, type, senderId, i
 
         if (users.length > 0) {
             users.forEach(async (user) => {
-                await sendMessage(user._id, title, description, type, user?.fcmToken, senderId, image)
+                if (user.fcmToken) {
+                    await sendMessage(user._id, title, description, type, user?.fcmToken, senderId, image)
+                }
             })
         }
         // sendMessage(sender, reciver, title, content, "blog")

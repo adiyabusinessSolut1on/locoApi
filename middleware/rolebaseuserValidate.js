@@ -9,7 +9,7 @@ require("dotenv").config();
   } else {
     token = cookieToken;
   }
-  console.log({ token });
+  // console.log({ token });
   if (!token) {
     return res.status(403).json({
       error: {
@@ -22,7 +22,7 @@ require("dotenv").config();
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    console.log({ decoded });
+    // console.log({ decoded });
     if (!decoded || !decoded._id || decoded.role !== requiredRole) {
       return res.status(403).json({
         error: {
