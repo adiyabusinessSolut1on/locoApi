@@ -1,6 +1,7 @@
 const BlogCategoryModel = require("../../model/blogs/blogcategoryModel");
 const UserBlogs = require("../../model/blogs/blogcat");
 const Blog = require("../../model/blogs/blogModules");
+const { sendNotifcationToAllUsers } = require("../notification");
 
 const createMainCategory = async (req, res) => {
   try {
@@ -102,7 +103,7 @@ const createInnerCategory = async (req, res) => {
 const updateMainCategory = async (req, res) => {
   try {
     const { mainCategoryId } = req.params;
-    const { name,image } = req.body;
+    const { name, image } = req.body;
     const mainCategory = await BlogCategoryModel.findByIdAndUpdate(
       mainCategoryId,
       { name, image },
@@ -339,53 +340,27 @@ const GetBlogCategory = async (req, res) => {
 
 const CreateBlogs = async (req, res) => {
   try {
-    const {
-      maincategory,
-      subcategory,
-      subsubcategory,
-      innercategory,
-      title,
-      slug,
-      thumnail,
-      content,
-    } = req.body;
-    console.log("thumbnail>>", thumnail);
-    const userBlog = await UserBlogs.findOneAndUpdate(
-      { name: maincategory },
-      { $setOnInsert: { name: maincategory } },
-      { upsert: true, new: true }
-    );
+    const { maincategory, subcategory, subsubcategory, innercategory, title, slug, thumnail, content, } = req.body;
+    // console.log("thumbnail>>", thumnail);
+
+    const userBlog = await UserBlogs.findOneAndUpdate({ name: maincategory }, { $setOnInsert: { name: maincategory } }, { upsert: true, new: true });
+
     const findOrCreateCategory = (categories, categoryName) => {
       let categoryIndex = categories.findIndex(
         (cat) => cat.name === categoryName
       );
       if (categoryIndex === -1) {
-        categories.push({
-          name: categoryName,
-        });
+        categories.push({ name: categoryName, });
         categoryIndex = categories.length - 1;
       }
       return categoryIndex;
     };
 
-    let subCatIndex = subcategory
-      ? findOrCreateCategory(userBlog.subCategories, subcategory)
-      : null;
+    let subCatIndex = subcategory ? findOrCreateCategory(userBlog.subCategories, subcategory) : null;
 
-    let subSubCatIndex = subsubcategory
-      ? findOrCreateCategory(
-          userBlog.subCategories[subCatIndex].subSubCategories,
-          subsubcategory
-        )
-      : null;
+    let subSubCatIndex = subsubcategory ? findOrCreateCategory(userBlog.subCategories[subCatIndex].subSubCategories, subsubcategory) : null;
 
-    let innerCatIndex = innercategory
-      ? findOrCreateCategory(
-          userBlog.subCategories[subCatIndex].subSubCategories[subSubCatIndex]
-            .innerCategories,
-          innercategory
-        )
-      : null;
+    let innerCatIndex = innercategory ? findOrCreateCategory(userBlog.subCategories[subCatIndex].subSubCategories[subSubCatIndex].innerCategories, innercategory) : null;
 
     const blog = await Blog.create({ title, slug, thumnail, content });
 
@@ -404,13 +379,16 @@ const CreateBlogs = async (req, res) => {
     }
 
     await userBlog.save();
-    res
-      .status(201)
-      .json({ success: true, data: userBlog, message: "Blog Created" });
+
+    const admin = await User.findOne({ role: 'admin' })
+    await sendNotifcationToAllUsers(title, content, "blog", admin?._id, thumnail)
+
+    res.status(201).json({ success: true, data: userBlog, message: "Blog Created" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 const AddCommentBlogById = async (req, res) => {
   const { id } = req.params;
@@ -419,18 +397,12 @@ const AddCommentBlogById = async (req, res) => {
   try {
     const response = await Blog.findById(id);
     if (!response) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Blog not found" });
+      return res.status(404).json({ success: false, message: "Blog not found" });
     }
     const newComment = { comment: comment, comment_user: userId };
     response.comments.push(newComment);
     await response.save();
-    res.status(200).json({
-      success: true,
-      message: "Comment added successfully",
-      data: response,
-    });
+    res.status(200).json({ success: true, message: "Comment added successfully", data: response, });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -439,16 +411,10 @@ const CreateNEWBlog = async (req, res) => {
   try {
     const response = await Blog.create(req.body);
     if (!response) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Blog not Upload" });
+      return res.status(404).json({ success: false, message: "Blog not Upload" });
     }
 
-    res.status(201).json({
-      success: true,
-      message: "Blog Uploaded",
-      data: response,
-    });
+    res.status(201).json({ success: true, message: "Blog Uploaded", data: response, });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -485,7 +451,7 @@ const GetAllBlogs = async (req, res) => {
   try {
     const response = await Blog.find().sort({ createdAt: -1 });
     if (!response.length > 0) {
-      res.status(404).json({ success: false, message: " Blog Not Found" });
+      return res.status(404).json({ success: false, message: " Blog Not Found" });
     }
     res.status(200).json({ success: true, data: response });
   } catch (error) {
@@ -496,19 +462,11 @@ const UpdateBlogById = async (req, res) => {
   const { id } = req.params;
   const data = req.body;
   try {
-    const response = await Blog.findByIdAndUpdate(
-      id,
-      {
-        ...data,
-      },
-      { new: true }
-    );
+    const response = await Blog.findByIdAndUpdate(id, { ...data, }, { new: true });
     if (!response) {
-      res.status(403).json({ success: false, message: " Blog Not Updated" });
+      return res.status(403).json({ success: false, message: " Blog Not Updated" });
     }
-    res
-      .status(200)
-      .json({ success: true, data: response, message: "blog Updated" });
+    res.status(200).json({ success: true, data: response, message: "blog Updated" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -28,6 +28,8 @@ const reportRoute = require("./route/reportRoute.js");
 const server = createServer(app);
 
 const Poll = require("./model/pollModel.js");
+const settingRouter = require("./route/admin/setting.js");
+const notifyRouter = require("./route/notification.js");
 const checkTimeLimits = async () => {
   const now = new Date();
   await Poll.updateMany(
@@ -78,6 +80,10 @@ app.use("/api/admin", testYourSelfRoute);
 app.use("/api/admin", DailyTaskRoute);
 app.use("/api/user/blog", Blog);
 app.use("/api/admin", reportRoute);
+app.use("/api/admin", settingRouter);
+app.use('/api/notification', notifyRouter)
+
+
 
 server.listen(process.env.PORT, (port) => {
   console.log(`Server is running on port ${process.env.PORT}`);

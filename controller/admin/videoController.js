@@ -5,13 +5,7 @@ const createVideoCategory = async (req, res) => {
   try {
     const response = new videCategory(req.body);
     const saveresponse = await response.save();
-    res
-      .status(201)
-      .json({
-        success: true,
-        data: saveresponse,
-        message: "Video category Created",
-      });
+    res.status(201).json({ success: true, data: saveresponse, message: "Video category Created", });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

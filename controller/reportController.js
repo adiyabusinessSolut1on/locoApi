@@ -1,12 +1,13 @@
 const User = require("../model/user");
 const Report = require("../model/report");
 const sendReportMail = require("../email-templates/reportEmail");
+const { sendMessage } = require("../services/notification");
 
 const reportPost = async (req, res) => {
   try {
     const { reportedUser, reportedPost, reason, description } = req.body;
 
-    console.log(req.userId);
+    // console.log(req.userId);
     const newReport = new Report({
       reportedBy: req.userId, // Assuming admin info is stored in req.user
       reportedUser,
@@ -27,14 +28,16 @@ const reportPost = async (req, res) => {
 
     sendReportMail(userEmail, subject, message);
 
-    return res
-      .status(201)
-      .json({ message: "Report submitted successfully", data: newReport });
+    const checkPost = await Post.findById(reportedPost);
+
+    if (user?.fcmToken) {
+      await sendMessage(reportedUser, checkPost?.content, checkPost?.content, "report", user?.fcmToken, req?.userId, checkPost?.thumnail)
+    }
+
+    return res.status(201).json({ message: "Report submitted successfully", data: newReport });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ message: "Error reporting post", error: error.message });
+    return res.status(500).json({ message: "Error reporting post", error: error.message });
   }
 };
 
