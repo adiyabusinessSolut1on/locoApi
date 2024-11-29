@@ -37,8 +37,5 @@ const TestYourSelfquestionSchema = new mongoose.Schema(
   }
 );
 
-const TestYourSelfQuestion = mongoose.model(
-  "test_yourself_question",
-  TestYourSelfquestionSchema
-);
+const TestYourSelfQuestion = mongoose.model("test_yourself_question", TestYourSelfquestionSchema);
 module.exports = TestYourSelfQuestion;

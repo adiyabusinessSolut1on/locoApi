@@ -5,10 +5,10 @@ const TestYourSelfSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required:true
+      required: true
     },
-    category:{
-type:String
+    category: {
+      type: String
     },
     score: {
       type: Number,

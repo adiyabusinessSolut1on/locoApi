@@ -10,6 +10,9 @@ const Quiz = require("../model/quiz/quizModel");
 const QuizQuestion = require("../model/quiz/quizquestions");
 const { sendNotifcationToAllUsers } = require("./notification");
 const { sendMessage } = require("../services/notification");
+const Notification = require("../model/Notification");
+const Poll = require("../model/pollModel");
+const report = require("../model/report");
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
@@ -752,6 +755,19 @@ const deleteUserAccount = async (req, res) => {
     if (!checkUser) {
       return res.status(404).json({ success: false, message: "User not found", });
     }
+
+    const checkMutual = await Mutual.updateMany({ userId: id })
+    const checkNotification = await Notification.updateMany({ $or: [{ senderId: id }, { recipient: id }], });
+    const deletedPolls = await Poll.deleteMany({ userId: id });
+
+    // Step 2: Remove the user from the `voters` array in all polls
+    const updatedPolls = await Poll.updateMany(
+      { "options.voters": id },
+      { $pull: { "options.$[].voters": id } } // Remove userId from voters in all options
+    );
+
+    const checkPost = await Post.deleteMany({ user: id })
+    const checkReport = await report.deleteMany({ $or: [{ reportedBy: id }, { reportedUser: id }] })
 
 
     const result = await User.findByIdAndDelete(id)
