@@ -239,7 +239,9 @@ const userMutualPost = async (req, res) => {
 
 const getAllFormPost = async (req, res) => {
   try {
-    const response = await Mutual.find();
+    // const response = await Mutual.find().populate('userId');
+    const response = await Mutual.find().populate('userId', '-password -quiz -savePosts -test_yourself -fcmToken -isVerify -likedPosts -daily_task'); // Exclude specific fields
+
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
     }
@@ -385,7 +387,7 @@ const CommentPost = async (req, res) => {
 const getAllFormPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await Mutual.find({ userId: userId });
+    const response = await Mutual.find({ userId: userId }).populate('userId');
 
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
@@ -408,7 +410,7 @@ const getSeachMutualpostUsingDvision = async (req, res) => {
     }
     const escapedSearch = escapeRegex(search);
     const searchRegex = new RegExp(`^${escapedSearch}`, "i");
-    const response = await Mutual.find({ $or: [{ currentdivision: searchRegex }], });
+    const response = await Mutual.find({ $or: [{ currentdivision: searchRegex }], }).populate('userId');
 
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
@@ -423,32 +425,18 @@ const getSeachMutualpostUsingwantedLobby = async (req, res) => {
   const { search } = req.query;
   try {
     if (!search || search.trim() === "") {
-      return res.send({
-        success: false,
-        message: "Search query cannot be empty",
-      });
+      return res.send({ success: false, message: "Search query cannot be empty", });
     }
     const escapedSearch = escapeRegex(search);
     const searchRegex = new RegExp(`^${escapedSearch}`, "i");
-    const response = await Mutual.find({
-      $or: [{ currentlobby: searchRegex }],
-    });
+    const response = await Mutual.find({ $or: [{ currentlobby: searchRegex }], }).populate('userId');
 
     if (!response.length > 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Data Not Found" });
+      return res.status(404).json({ success: false, message: "Data Not Found" });
     }
-    res.status(200).json({
-      success: true,
-      message: "get post Successfully",
-      data: response,
-    });
+    res.status(200).json({ success: true, message: "get post Successfully", data: response, });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message, });
   }
 };
 const UpdateUserProfile = async (req, res) => {
@@ -750,6 +738,8 @@ const userComplteteTest = async (req, res) => {
 // my chnages
 const deleteUserAccount = async (req, res) => {
   const id = req.params.id
+  // console.log("id: ", id);
+
   try {
     const checkUser = await User.findById(id)
     if (!checkUser) {
@@ -757,13 +747,13 @@ const deleteUserAccount = async (req, res) => {
     }
 
     const checkMutual = await Mutual.deleteMany({ userId: id })
-    console.log("checkMutual", checkMutual);
+    // console.log("checkMutual", checkMutual);
 
     const checkNotification = await Notification.deleteMany({ $or: [{ senderId: id }, { recipient: id }], });
-    console.log("checkNotification", checkNotification);
+    // console.log("checkNotification", checkNotification);
 
     const deletedPolls = await Poll.deleteMany({ userId: id });
-    console.log("deletedPolls", deletedPolls);
+    // console.log("deletedPolls", deletedPolls);
 
     // Step 2: Remove the user from the `voters` array in all polls
     // const updatedPolls = await Poll.updateMany(

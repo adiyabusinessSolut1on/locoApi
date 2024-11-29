@@ -11,7 +11,7 @@ const { getAllVideoCategory, GetVideoByCategory, GetVideoById, } = require("../c
 
 router.post("/register", UserRegister);
 // my changes start
-router.delete("/delete-user/:id", /* isUser, */ deleteUserAccount);
+router.delete("/delete-user/:id", isUser, deleteUserAccount);
 // my changes end
 router.post("/login", UserLogin);
 router.get("/get_myself", usermiddleare, getUser);
