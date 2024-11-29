@@ -12,18 +12,18 @@ const { sendNotifcationToAllUsers } = require("./notification");
 const { sendMessage } = require("../services/notification");
 const Notification = require("../model/Notification");
 const Poll = require("../model/pollModel");
-const report = require("../model/report");
+const Report = require("../model/report");
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
 
   // console.log("req.body: ", req.body);
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] });
     // console.log("user: ", user);
 
     if (user) {
-      return res.status(409).json({ success: false, message: "User already exists", });
+      return res.status(409).json({ success: false, message: "User already exists! Please check mobile number of email id", });
     }
 
     // console.log("user: ", user);
@@ -756,27 +756,37 @@ const deleteUserAccount = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found", });
     }
 
-    const checkMutual = await Mutual.updateMany({ userId: id })
-    const checkNotification = await Notification.updateMany({ $or: [{ senderId: id }, { recipient: id }], });
+    const checkMutual = await Mutual.deleteMany({ userId: id })
+    console.log("checkMutual", checkMutual);
+
+    const checkNotification = await Notification.deleteMany({ $or: [{ senderId: id }, { recipient: id }], });
+    console.log("checkNotification", checkNotification);
+
     const deletedPolls = await Poll.deleteMany({ userId: id });
+    console.log("deletedPolls", deletedPolls);
 
     // Step 2: Remove the user from the `voters` array in all polls
-    const updatedPolls = await Poll.updateMany(
-      { "options.voters": id },
-      { $pull: { "options.$[].voters": id } } // Remove userId from voters in all options
-    );
+    // const updatedPolls = await Poll.updateMany(
+    //   { "options.voters": id },
+    //   { $pull: { "options.$[].voters": id } } // Remove userId from voters in all options
+    // );
+    // console.log("updatedPolls", updatedPolls);
 
     const checkPost = await Post.deleteMany({ user: id })
-    const checkReport = await report.deleteMany({ $or: [{ reportedBy: id }, { reportedUser: id }] })
+    // console.log("checkPost", checkPost);
+    const checkReport = await Report.deleteMany({ $or: [{ reportedBy: id }, { reportedUser: id }] })
+    // console.log("checkReport", checkReport);
 
 
     const result = await User.findByIdAndDelete(id)
     if (result) {
-      return res.status(200).json({ success: true, message: "Test data added to user successfully", data: result, })
+      return res.status(200).json({ success: true, message: `User ${result?.name} deleted successfully.`, data: result, })
     }
     return res.status(400).json({ success: false, message: "Failed to delte user", });
 
   } catch (error) {
+    console.log("error on deleting user: ", error);
+
     res.status(500).json({ success: false, message: error.message, });
   }
 }
