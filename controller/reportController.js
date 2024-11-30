@@ -6,36 +6,51 @@ const Post = require("../model/post");
 
 const reportPost = async (req, res) => {
   try {
-    const { reportedUser, reportedPost, reason, description } = req.body;
+    // console.log("================================= report post ====================================")
+    const { reportedUser, reportedPost, reason, description, awareness, blog } = req.body;
+    // console.log("req.body: ", req.body);
+
+    /* console.log({
+      reportedBy: req.userId,
+      reportedUser,
+      reportedPost: reportedPost,
+      awareness: awareness,
+      blog: blog,
+      reason,
+      description,
+    }); */
+
 
     // console.log(req.userId);
     const newReport = new Report({
-      reportedBy: req.userId, // Assuming admin info is stored in req.user
+      reportedBy: req.userId,// Assuming admin info is stored in req.user
       reportedUser,
-      reportedPost,
+      reportedPost: reportedPost,
+      awareness: awareness,
+      blog: blog,
       reason,
       description,
     });
 
     await newReport.save();
 
-    const user = await User.findById(reportedUser);
+    if (reportedUser) {
+      const user = await User.findById(reportedUser);
 
-    console.log(user);
+      const userEmail = user.email;
+      const subject = "Your Post Has Been Reported";
+      const message = `Your post has been reported for ${reason}. Please review our guidelines and avoid posting inappropriate content.`;
 
-    const userEmail = user.email;
-    const subject = "Your Post Has Been Reported";
-    const message = `Your post has been reported for ${reason}. Please review our guidelines and avoid posting inappropriate content.`;
+      sendReportMail(userEmail, subject, message);
 
-    sendReportMail(userEmail, subject, message);
+      const checkPost = await Post.findById(reportedPost);
 
-    const checkPost = await Post.findById(reportedPost);
-
-    if (user?.fcmToken) {
-      await sendMessage(reportedUser, checkPost?.content, checkPost?.content, "report", user?.fcmToken, req?.userId, checkPost?.thumnail)
+      if (user?.fcmToken) {
+        await sendMessage(reportedUser, checkPost?.content, checkPost?.content, "report", user?.fcmToken, req?.userId, checkPost?.thumnail)
+      }
     }
 
-    return res.status(201).json({ message: "Report submitted successfully", data: newReport });
+    return res.status(201).json({ message: "Report submitted successfully", data: "newReport" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Error reporting post", error: error.message });

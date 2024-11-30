@@ -9,12 +9,19 @@ const reportSchema = new mongoose.Schema({
   reportedUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-    required: true,
+    // required: true,
   },
   reportedPost: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "post",
-    required: true,
+  },
+  awareness: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "awareness",
+  },
+  blog: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "blog",
   },
   reason: {
     type: String,

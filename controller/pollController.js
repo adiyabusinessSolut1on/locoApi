@@ -1,5 +1,5 @@
 const Poll = require("../model/pollModel");
-const Post=require("../model/post")
+const Post = require("../model/post")
 const createPoll = async (req, res) => {
   const userId = req.userId;
   try {
@@ -52,14 +52,14 @@ const updatePoll = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Poll not found" });
-        const totalVotes = poll.options.reduce(
-          (sum, option) => sum + option.voters.length,
-          0
-        );
-        poll.options.forEach((option) => {
-          option.percent =
-            totalVotes === 0 ? 0 : (option.voters.length / totalVotes) * 100;
-        });
+    const totalVotes = poll.options.reduce(
+      (sum, option) => sum + option.voters.length,
+      0
+    );
+    poll.options.forEach((option) => {
+      option.percent =
+        totalVotes === 0 ? 0 : (option.voters.length / totalVotes) * 100;
+    });
 
     await poll.save();
     res.status(200).json({ success: true, data: poll });
@@ -84,26 +84,9 @@ const deletePoll = async (req, res) => {
 };
 const getMixedpollpost = async (req, res) => {
   try {
-    const posts = await Post.find().populate({
-      path: 'comments.comment_user',
-      select: 'name email image'
-    }).populate({
-      path: 'user',
-      select: 'name email image'
-    }).lean();
-    const polls = await Poll.find().populate({
-      path: 'options.voters',
-      select: 'name email image'
-    }).populate({
-      path:"userId",
-      select:"name email image"
-    }).populate({
-      path: 'comments.comment_user',
-      select: 'name email image'
-    }).lean();
-    const content = [...posts, ...polls].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+    const posts = await Post.find().populate({ path: 'comments.comment_user', select: 'name email image' }).populate({ path: 'user', select: 'name email image' }).lean();
+    const polls = await Poll.find().populate({ path: 'options.voters', select: 'name email image' }).populate({ path: "userId", select: "name email image" }).populate({ path: 'comments.comment_user', select: 'name email image' }).lean();
+    const content = [...posts, ...polls].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     res.status(200).json(content);
   } catch (error) {
@@ -111,7 +94,7 @@ const getMixedpollpost = async (req, res) => {
   }
 };
 
-const polllikeunlike=async(req,res)=>{
+const polllikeunlike = async (req, res) => {
   const { id } = req.params;
   const userId = req.userId;
   try {
@@ -136,7 +119,7 @@ const polllikeunlike=async(req,res)=>{
       poll,
     });
   } catch (error) {
-   
+
     return res.status(500).json({ message: "Internal Server error" });
   }
 }

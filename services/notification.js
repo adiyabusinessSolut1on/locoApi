@@ -29,8 +29,12 @@ exports.sendMessage = async (reciver, title, description, type, fcmToken, sender
         }
 
         const checkAdmin = await User.findOne({ role: "admin" })
+        // console.log("checkAdmin: ", checkAdmin);
+
 
         const result = await Notification.create({ title: title, description: description, senderId: sender ? sender : checkAdmin?._id, recipient: reciver, notificationType: type ? type : 'notify' })
+        // console.log("result: ", result);
+
         if (result) {
             admin.messaging().send(messageC).then(async (response) => {
                 console.log("response admin.messaging: ", response);
