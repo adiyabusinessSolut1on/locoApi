@@ -114,14 +114,69 @@ const updateReportStatus = async (req, res) => {
     const userEmail = user.email;
     sendReportMail(userEmail, subject, message);
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Report status updated", report });
+    return res.status(200).json({ success: true, message: "Report status updated", report });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error updating report status", error });
+    return res.status(500).json({ message: "Error updating report status", error });
   }
 };
 
-module.exports = { reportPost, getReports, updateReportStatus };
+/* const hidePostUser = async (req, res) => {
+  const id = req.params.id; //this id will be the user whose post should be hidden
+
+  try {
+
+    const checkUser = await User.findById(id)
+    if(!checkUser){
+      return res.status(400).json({message: "User not found", success: false})
+    }
+
+    const checkReporterUser = await User.findById(req.userId)
+    if(!checkReporterUser){
+      return res.status(403).json({message: "Unathorized access!", success: false})
+    }
+
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating report status", error });
+  }
+} */
+
+const blockUserPosts = async (req, res) => {
+  const userId = req.userId; // ID of the current user
+  const blockUserId = req.params.id; // ID of the user to block
+
+  console.log("======================================= blockUserPost ================================ ")
+  // console.log("req.params: ", req.params)
+  // console.log("req.userId: ", req.userId)
+  try {
+    // Ensure the user to block exists
+    const blockUserExists = await User.findById(blockUserId);
+    if (!blockUserExists) {
+      return res.status(404).json({ message: "User to block not found", success: false });
+    }
+
+    // Find the current user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(403).json({ message: "Unauthorized access!", success: false });
+    }
+
+    // Check if the user is already blocked
+    const alreadyBlocked = user.notVisibleUser.includes(blockUserId);
+    if (alreadyBlocked) {
+      return res.status(200).json({ message: "User already blocked", success: true });
+    }
+
+    // Add the user to the blocked list
+    user.notVisibleUser.push(blockUserId);
+    await user.save();
+
+    return res.status(200).json({ message: "User successfully blocked", success: true });
+  } catch (error) {
+    console.error("Error blocking user:", error);
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+
+
+module.exports = { reportPost, getReports, updateReportStatus, blockUserPosts };

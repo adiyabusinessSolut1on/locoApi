@@ -89,7 +89,11 @@ const userModel = new mongoose.Schema(
     },
     quiz: [userQuiz],
     test_yourself: [userTest],
-    daily_task: [userTask]
+    daily_task: [userTask],
+    notVisibleUser: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    }]
   },
   {
     timestamps: true,

@@ -1,5 +1,6 @@
 const Poll = require("../model/pollModel");
-const Post = require("../model/post")
+const Post = require("../model/post");
+const User = require("../model/user");
 const createPoll = async (req, res) => {
   const userId = req.userId;
   try {
@@ -82,7 +83,8 @@ const deletePoll = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-const getMixedpollpost = async (req, res) => {
+
+/* const getMixedpollpost = async (req, res) => {
   try {
     const posts = await Post.find().populate({ path: 'comments.comment_user', select: 'name email image' }).populate({ path: 'user', select: 'name email image' }).lean();
     const polls = await Poll.find().populate({ path: 'options.voters', select: 'name email image' }).populate({ path: "userId", select: "name email image" }).populate({ path: 'comments.comment_user', select: 'name email image' }).lean();
@@ -92,7 +94,44 @@ const getMixedpollpost = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+}; */
+
+const getMixedpollpost = async (req, res) => {
+  console.log("=================================== getMixedpoll post =============================================");
+
+  try {
+    const currentUserId = req.userId; // ID of the current user
+
+    console.log("currentUserId: ", currentUserId)
+
+    // Fetch the current user to get the list of blocked users
+    const currentUser = await User.findById(currentUserId).select("notVisibleUser").lean();
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
+
+    const blockedUsers = currentUser.notVisibleUser; // Array of blocked user IDs
+
+    // Fetch posts, excluding those created by blocked users
+    const posts = await Post.find({
+      user: { $nin: blockedUsers }, // Exclude posts from blocked users
+    }).populate({ path: "comments.comment_user", select: "name email image" }).populate({ path: "user", select: "name email image" }).lean();
+
+    // Fetch polls, excluding those created by blocked users
+    const polls = await Poll.find({
+      userId: { $nin: blockedUsers }, // Exclude polls from blocked users
+    }).populate({ path: "options.voters", select: "name email image" }).populate({ path: "userId", select: "name email image" }).populate({ path: "comments.comment_user", select: "name email image" }).lean();
+
+    // Combine posts and polls and sort by creation date
+    const content = [...posts, ...polls].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.status(200).json(content);
+  } catch (error) {
+    console.error("Error fetching mixed posts and polls:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 const polllikeunlike = async (req, res) => {
   const { id } = req.params;
