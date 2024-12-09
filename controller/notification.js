@@ -22,6 +22,26 @@ exports.getNotificationById = async (req, res) => {
         }
         return res.status(404).json({ success: false, message: "Notification not found." });
     } catch (error) {
+        console.log("error on getNotificationById: ", error);
+        return res.status(500).json({ message: error.message, success: false, })
+    }
+}
+
+
+exports.readAtNotification = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const checkNotification = await Notification.findById(id);
+        if (!checkNotification) {
+            return res.status(404).json({ success: false, message: "Notification not found." });
+        }
+
+        checkNotification.isRead = true;
+        checkNotification.readAt = Date.now()
+        await checkNotification.save();
+        return res.status(200).json({ success: true, message: "Notification read successfully." });
+    } catch (error) {
+        console.log("error on readAtNotification: ", error);
         return res.status(500).json({ message: error.message, success: false, })
     }
 }
@@ -31,10 +51,17 @@ exports.getNotificationById = async (req, res) => {
 
 exports.sendNotifcationToAllUsers = async (title, description, type, senderId, image) => {
 
+    // console.log(" ========================================== sendNotifcationToAllUsers ==========================================");
+    // console.log("title: ", title);
+    // console.log("description: ", description);
+    // console.log("type: ", type);
+    // console.log("senderId: ", senderId);
+    // console.log("image: ", image);
+
+
 
     try {
         const users = await User.find()
-
         if (users.length > 0) {
             users.forEach(async (user) => {
                 if (user.fcmToken) {

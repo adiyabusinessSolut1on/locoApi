@@ -46,7 +46,7 @@ const reportPost = async (req, res) => {
       const checkPost = await Post.findById(reportedPost);
 
       if (user?.fcmToken) {
-        await sendMessage(reportedUser, checkPost?.content, checkPost?.content, "report", user?.fcmToken, req?.userId, checkPost?.thumnail)
+        await sendMessage(reportedUser, subject, message, "report", user?.fcmToken, req?.userId, checkPost?.thumnail)
       }
     }
 

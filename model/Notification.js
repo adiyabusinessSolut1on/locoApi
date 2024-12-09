@@ -19,9 +19,20 @@ const NotificationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    notifyId: {
+        // type: mongoose.Schema.Types.ObjectId,
+        type: String,
+    },
     notificationType: {
         type: String,
         enum: ['message', 'post', 'comment', 'like', 'follow', 'test_yourself_question', 'blog', 'test', 'post comment', 'post like', 'report', 'awareness', 'mutual']
+    },
+    readAt: {
+        type: String
+    },
+    isRead: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 

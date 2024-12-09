@@ -22,6 +22,7 @@ router.post("/mutual-post", usermiddleare, userMutualPost);
 router.put("/mutual-post/:id", isUser, UpdateMutualPost);
 router.delete("/mutual-post/:id", isUser, DeleteMutualPost);
 
+// this api need to check
 router.post("/post", usermiddleare, userPost);
 router.get("/get-all-post", getAllPost);
 router.get("/get-post-by-user", usermiddleare, getAllPostByUserId);

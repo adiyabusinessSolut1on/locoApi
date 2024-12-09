@@ -361,7 +361,7 @@ const CreateNEWBlog = async (req, res) => {
 
     const admin = await User.findOne({ role: 'admin' })
 
-    await sendNotifcationToAllUsers(req.body?.title, req?.body?.content, "blog", admin?._id, req.body?.thumnail)
+    await sendNotifcationToAllUsers(req.body?.title, req?.body?.title, "blog", admin?._id, req.body?.thumnail)
     res.status(201).json({ success: true, message: "Blog Uploaded", data: response, });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
