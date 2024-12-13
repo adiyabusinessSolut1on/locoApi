@@ -10,15 +10,15 @@ const reportPost = async (req, res) => {
     const { reportedUser, reportedPost, reason, description, awareness, blog } = req.body;
     // console.log("req.body: ", req.body);
 
-    /* console.log({
-      reportedBy: req.userId,
-      reportedUser,
-      reportedPost: reportedPost,
-      awareness: awareness,
-      blog: blog,
-      reason,
-      description,
-    }); */
+    /*  console.log({
+       reportedBy: req.userId,
+       reportedUser,
+       reportedPost: reportedPost,
+       awareness: awareness,
+       blog: blog,
+       reason,
+       description,
+     }); */
 
 
     // console.log(req.userId);
@@ -64,7 +64,9 @@ const getReports = async (req, res) => {
     const reports = await Report.find(filter)
       .populate("reportedBy")
       .populate("reportedUser")
-      .populate("reportedPost");
+      .populate("reportedPost")
+      .populate("awareness")
+      .populate("blog")
 
     return res.status(200).json(reports);
   } catch (error) {

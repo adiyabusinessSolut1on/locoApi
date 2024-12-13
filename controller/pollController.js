@@ -97,12 +97,12 @@ const deletePoll = async (req, res) => {
 }; */
 
 const getMixedpollpost = async (req, res) => {
-  console.log("=================================== getMixedpoll post =============================================");
+  // console.log("=================================== getMixedpoll post =============================================");
 
   try {
     const currentUserId = req.userId; // ID of the current user
 
-    console.log("currentUserId: ", currentUserId)
+    // console.log("currentUserId: ", currentUserId)
 
     // Fetch the current user to get the list of blocked users
     const currentUser = await User.findById(currentUserId).select("notVisibleUser").lean();
@@ -115,15 +115,16 @@ const getMixedpollpost = async (req, res) => {
     // Fetch posts, excluding those created by blocked users
     const posts = await Post.find({
       user: { $nin: blockedUsers }, // Exclude posts from blocked users
-    }).populate({ path: "comments.comment_user", select: "name email image" }).populate({ path: "user", select: "name email image" }).lean();
+    }).populate({ path: "comments.comment_user", select: "name email image" }).populate({ path: "images", }).populate({ path: "videos", }).populate({ path: "user", select: "name email image" }).lean();
 
     // Fetch polls, excluding those created by blocked users
     const polls = await Poll.find({
       userId: { $nin: blockedUsers }, // Exclude polls from blocked users
-    }).populate({ path: "options.voters", select: "name email image" }).populate({ path: "userId", select: "name email image" }).populate({ path: "comments.comment_user", select: "name email image" }).lean();
+    }).populate({ path: "options.voters", select: "name email image" }).populate({ path: "images", }).populate({ path: "videos", }).populate({ path: "userId", select: "name email image" }).populate({ path: "comments.comment_user", select: "name email image" }).lean();
 
     // Combine posts and polls and sort by creation date
     const content = [...posts, ...polls].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // console.log("content: ", content);
 
     res.status(200).json(content);
   } catch (error) {

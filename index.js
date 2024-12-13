@@ -26,7 +26,7 @@ const pollRoute = require("./route/pollRoute.js");
 const Blog = require("./route/blog.js");
 const reportRoute = require("./route/reportRoute.js");
 const server = createServer(app);
-
+const fileUpload = require('express-fileupload');
 const Poll = require("./model/pollModel.js");
 const settingRouter = require("./route/admin/setting.js");
 const notifyRouter = require("./route/notification.js");
@@ -52,6 +52,11 @@ const io = new Server(server, {
 //   credentials: true,
 //   allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
 // }));
+
+app.use(fileUpload());
+
+app.use(express.static(__dirname + 'assets'));
+app.use('/images', express.static(__dirname + '/assets'));
 
 app.get("/", (req, res) => {
   res.send("WebSocket server is running");

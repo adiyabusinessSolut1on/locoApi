@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 
-const comment=new mongoose.Schema({
-    comment:{
-        type:String,
-    },
-    comment_user:{
-        type: mongoose.Schema.Types.ObjectId,
-            ref: "user",
-    }
+const comment = new mongoose.Schema({
+  comment: {
+    type: String,
+  },
+  comment_user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+  }
 })
 const postModel = new mongoose.Schema(
   {
@@ -15,16 +15,18 @@ const postModel = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
-    type:{
-      type:String,
-      default:"post"
-    },
-    thumnail: {
+    type: {
       type: String,
+      default: "post"
     },
-    mediatype: {
-      type: String,
-    },
+    images: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
+    }],
+    videos: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
+    }],
     content: {
       type: String,
     },

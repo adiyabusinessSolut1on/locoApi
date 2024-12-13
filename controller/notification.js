@@ -58,7 +58,7 @@ exports.sendNotifcationToAllUsers = async (title, description, type, senderId, i
     // console.log("senderId: ", senderId);
     // console.log("image: ", image);
 
-
+    // need to put aggregation that which user is sending notification will not get notify left of him will get all user notifications
 
     try {
         const users = await User.find()

@@ -13,6 +13,9 @@ const { sendMessage } = require("../services/notification");
 const Notification = require("../model/Notification");
 const Poll = require("../model/pollModel");
 const Report = require("../model/report");
+const Media = require("../model/Media");
+const { UploadImage } = require("../utils/imageUpload");
+const path = require('path')
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
@@ -114,22 +117,82 @@ const UpdatePost = async (req, res) => {
 };
 
 const userPost = async (req, res) => {
-  const { thumnail, content, mediatype } = req.body;
+  // console.log("============================ userPost ========================");
 
+  // need to handle image and video uploading with array images and videos
+  const { content } = req.body;
+  // console.log("req.files: ", req.files);
+  const files = req.files
+  const images = req.files?.images
+  const videos = req.files?.videos
+
+  // console.log("content: ", content);
+
+
+  // console.log("images: ", images);
+  // console.log("videos: ", videos);
+  const imageIds = [];
+  const videoIds = [];
+
+  let notifyImages = []
   try {
-    const newPost = new Post({ thumnail: thumnail, mediatype: mediatype, content: content, user: req.userId, });
+    if (files.images) {
+      const images = Array.isArray(files.images) ? files.images : [files.images];
+      for (const image of images) {
+        const uploaded = await UploadImage(image, 'post');
+        // console.log("uploaded image: ", uploaded);
 
-    await newPost.save();
+        if (uploaded) {
+          const imagePath = path.join(__dirname, '..', "assets", "image", uploaded)
+          // console.log("imagePath: ", imagePath);
 
-    await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, thumnail)
-    res.status(201).json({ success: true, message: "post created successfully", data: newPost, });
+          notifyImages.push(imagePath)
+          const media = new Media({ name: uploaded, type: 'image', path: imagePath });
+          await media.save();
+          imageIds.push(media._id);
+        }
+      }
+    }
+
+    // Handle video uploads
+    if (files.videos) {
+      const videos = Array.isArray(files.videos) ? files.videos : [files.videos];
+      for (const video of videos) {
+        const uploaded = await UploadImage(video, 'post-vidoe');
+        // console.log("uploaded video: ", uploaded);
+        if (uploaded) {
+          const videoPath = path.join(__dirname, '..', "assets", "vidoe", uploaded)
+          // console.log("videoPath: ", videoPath);
+
+          const media = new Media({ name: uploaded, type: 'video', path: videoPath });
+          await media.save();
+          videoIds.push(media._id);
+        }
+      }
+    }
+
+    const newPost = new Post({ user: req.userId, content: content, images: imageIds, videos: videoIds, });
+    const result = await newPost.save();
+
+    if (result) {
+      return res.status(201).json({ success: true, message: "post created successfully", data: result, });
+    }
+    await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, notifyImages[0])
+    return res.status(400).json({ success: false, message: "failed to upload the post", })
+    // const imageModal = new Media({name})
+
+    // const newPost = new Post({ thumnail: thumnail, mediatype: mediatype, content: content, user: req.userId, });
+
+    // await newPost.save();
+
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message, });
+    return res.status(500).json({ success: false, message: err.message, });
   }
 };
+
 const getAllPost = async (req, res) => {
   try {
-    const response = await Post.find().populate({ path: "user", select: "-password -otp", }).populate({ path: "comments.comment_user", select: "-password -otp", });
+    const response = await Post.find().populate({ path: "user", select: "-password -otp", }).populate({ path: "comments.comment_user", select: "-password -otp", }).populate({ path: "images", }).populate({ path: "videos", })
 
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
@@ -143,7 +206,7 @@ const getAllPost = async (req, res) => {
 const getAllPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await Post.find({ user: userId }).populate({ path: "user", select: "-password -otp", }).populate({ path: "comments.comment_user", select: "-password -otp", });
+    const response = await Post.find({ user: userId }).populate({ path: "user", select: "-password -otp", }).populate({ path: "comments.comment_user", select: "-password -otp", }).populate({ path: "images", }).populate({ path: "videos", });
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
     }
@@ -152,10 +215,12 @@ const getAllPostByUserId = async (req, res) => {
     res.status(500).json({ success: false, message: err.message, });
   }
 };
+
+
 const getSinglePost = async (req, res) => {
   const { id } = req.params;
   try {
-    const response = await Post.findById(id)
+    const response = await Post.findById(id).populate({ path: "images", }).populate({ path: "videos", })
       .populate({
         path: "user",
         select: "_id name image email",
@@ -260,7 +325,7 @@ const LikePosts = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    const post = await Post.findByIdAndUpdate(id, { $inc: { like: 1 } }, { new: true });
+    const post = await Post.findByIdAndUpdate(id, { $inc: { like: 1 } }, { new: true })
 
     if (!post) {
       return res.status(404).json({ success: false, message: "Post not found" });
@@ -324,46 +389,28 @@ const unLikePosts = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $pull: { likedPosts: id } },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(userId, { $pull: { likedPosts: id } }, { new: true });
     if (!updatedUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    const post = await Post.findByIdAndUpdate(
-      id,
-      { $inc: { like: -1 } },
-      { new: true }
-    );
+    const post = await Post.findByIdAndUpdate(id, { $inc: { like: -1 } }, { new: true });
 
     if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
+      return res.status(404).json({ success: false, message: "Post not found" });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Post Un-liked successfully",
-      data: post,
-    });
+    res.status(200).json({ success: true, message: "Post Un-liked successfully", data: post, });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message, });
   }
 };
+
 const CommentPost = async (req, res) => {
   try {
     const { id } = req.params;
     const { comment } = req.body;
     const userId = req.userId;
-    const post = await Post.findById(id);
+    const post = await Post.findById(id).populate({ path: "images", }).populate({ path: "videos", });
 
     if (!post) {
       return res.status(404).json({ success: false, message: "Post not found" });
