@@ -15,7 +15,8 @@ const Poll = require("../model/pollModel");
 const Report = require("../model/report");
 const Media = require("../model/Media");
 const { UploadImage } = require("../utils/imageUpload");
-const path = require('path')
+const path = require('path');
+const { deleteImgFromFolder } = require("../utils/removeImages");
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
@@ -100,6 +101,8 @@ const deletePost = async (req, res) => {
     res.status(500).json({ success: false, message: err.message, });
   }
 };
+
+
 const UpdatePost = async (req, res) => {
   const { id } = req.params;
   try {
@@ -115,6 +118,37 @@ const UpdatePost = async (req, res) => {
     });
   }
 };
+
+const UpdateImagePost = async (req, res) => {
+  const { id } = req.params; //this is post id
+  const image = req.files.image
+  const imageId = req.body.imageId
+  // const type = req.body.type
+  try {
+    const checkPost = await Post.findById(id)
+    if (!checkPost) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+    const checkImage = await Media.findById(imageId)
+    if (!checkImage) {
+      return res.status(404).json({ success: false, message: "Image not found" });
+    }
+    let type = checkImage.type
+    if (image) {
+      if (checkImage) {
+        await deleteImgFromFolder(checkImage.name, type == 'image' ? "post" : "post-vidoe")
+      }
+      const uploaded = await UploadImage(image, type == 'image' ? "post" : "post-vidoe");
+      const imagePath = path.join(__dirname, '..', "assets", type, uploaded)
+      checkImage.name = uploaded
+      checkImage.path = imagePath
+    }
+    await checkImage.save()
+    return res.status(200).json({ message: 'Image updated successfully.', success: true })
+  } catch (error) {
+    return res.status(500).json({ success: false, message: err.message, });
+  }
+}
 
 const userPost = async (req, res) => {
   // console.log("============================ userPost ========================");
@@ -863,5 +897,6 @@ module.exports = {
   SavePosts,
   userLikedPosts,
   getSinglePost,
-  deleteUserAccount
+  deleteUserAccount,
+  UpdateImagePost
 };

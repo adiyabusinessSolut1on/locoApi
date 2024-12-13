@@ -8,8 +8,8 @@ admin.initializeApp({
 
 
 exports.sendMessage = async (reciver, title, description, type, fcmToken, sender, image) => {
-    console.log("=============== sendMessage ============");
-    console.log("sender: ", sender, "reciver: ", reciver, "title: ", title, " description: ", description, " type: ", type, "fcmToken: ", fcmToken);
+    // console.log("=============== sendMessage ============");
+    // console.log("sender: ", sender, "reciver: ", reciver, "title: ", title, " description: ", description, " type: ", type, "fcmToken: ", fcmToken);
 
     // console.log("fcmToken: ", fcmToken);
     const messageC = {

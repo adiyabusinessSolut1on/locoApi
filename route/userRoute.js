@@ -2,7 +2,7 @@ const express = require("express");
 const { isUser } = require("../middleware/rolebaseuserValidate");
 const router = express.Router();
 const usermiddleare = require("../middleware/accoundvalidate");
-const { UserRegister, UserLogin, UpdateUserProfile, getUser, userPost, getAllPost, getAllPostByUserId, userMutualPost, getAllFormPost, getAllFormPostByUserId, getSeachMutualpostUsingwantedLobby, getSeachMutualpostUsingDvision, LikePosts, unLikePosts, savePostInUser, UpdateMutualPost, removePostFromUser, DeleteMutualPost, CommentPost, getAllQuiz, TestComplete, UpdateTestAnswer, UpdatePost, deletePost, userLikedPosts, getSinglePost, SavePosts, getSingleQuiz, getSingleTest, getAllTest, UpdateAnswer, QuizComplete, userComplteteQuiz, userComplteteTest, deleteUserAccount } = require("../controller/userController");
+const { UserRegister, UserLogin, UpdateUserProfile, getUser, userPost, getAllPost, getAllPostByUserId, userMutualPost, getAllFormPost, getAllFormPostByUserId, getSeachMutualpostUsingwantedLobby, getSeachMutualpostUsingDvision, LikePosts, unLikePosts, savePostInUser, UpdateMutualPost, removePostFromUser, DeleteMutualPost, CommentPost, getAllQuiz, TestComplete, UpdateTestAnswer, UpdatePost, deletePost, userLikedPosts, getSinglePost, SavePosts, getSingleQuiz, getSingleTest, getAllTest, UpdateAnswer, QuizComplete, userComplteteQuiz, userComplteteTest, deleteUserAccount, UpdateImagePost } = require("../controller/userController");
 const { getAll } = require("../controller/admin/implinks.Controller");
 const { getAllCategory, getAwarenessById, getAwarenessByCategory, getAll_Awareness, getSingleAwareness } = require("../controller/admin/awaremessController");
 const { GetUserBlog, AddCommentBlogById } = require("../controller/admin/blogs");
@@ -28,6 +28,7 @@ router.get("/get-all-post", getAllPost);
 router.get("/get-post-by-user", usermiddleare, getAllPostByUserId);
 router.get("/get-single-post/:id", getSinglePost)
 router.put("/post/:id", isUser, UpdatePost);
+router.put("/post/image/:id", isUser, UpdateImagePost)
 router.delete("/post/:id", isUser, deletePost);
 
 router.put("/blog/comment/:id", isUser, AddCommentBlogById);
