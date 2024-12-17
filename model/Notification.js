@@ -25,7 +25,11 @@ const NotificationSchema = new mongoose.Schema({
     },
     notificationType: {
         type: String,
-        enum: ['message', 'post', 'comment', 'like', 'follow', 'test_yourself_question', 'blog', 'test', 'post comment', 'post like', 'report', 'awareness', 'mutual']
+        enum: ['message', 'post', 'comment', 'like', 'follow', 'test_yourself_question', 'blog', 'test', 'post comment', 'post like', 'report', 'awareness', 'mutual', 'general', 'image']
+    },
+    image: {
+        type: String,
+        default: null
     },
     readAt: {
         type: String

@@ -64,8 +64,9 @@ exports.sendNotifcationToAllUsers = async (title, description, type, senderId, i
         const users = await User.find()
         if (users.length > 0) {
             users.forEach(async (user) => {
+                let customTitle = `Hi ${user.name}\n${title}`
                 if (user.fcmToken) {
-                    await sendMessage(user._id, title, description, type, user?.fcmToken, senderId, image)
+                    await sendMessage(user._id, customTitle, description, type, user?.fcmToken, senderId, image)
                 }
             })
         }
@@ -80,7 +81,8 @@ exports.sendMututalNotification = async (title, description, type, senderId, div
         const users = await User.find({ $or: [{ designation: division },], });
         if (users?.length > 0) {
             users.forEach(async (user) => {
-                await sendMessage(user._id, title, description, type, user?.fcmToken, senderId)
+                let customTitle = `Hi ${user.name}\n${title}`
+                await sendMessage(user._id, customTitle, description, type, user?.fcmToken, senderId)
             })
         }
     } catch (error) {

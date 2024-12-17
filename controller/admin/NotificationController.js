@@ -1,19 +1,46 @@
 const Pusher = require("../../config/pusher");
+const Awareness = require("../../model/awareness/awarenessModel");
 const Blog = require("../../model/blogs/blogModules");
 const { sendNotifcationToAllUsers } = require("../notification");
 
 const NotificationPush = async (req, res) => {
-  const { blogId, title, message } = req.body;
+  // console.log("req.body: ", req.body);
+  const message = req.body?.message
+  const awarenessId = req.body?.awarenessId
+  const blogId = req.body?.blogId
+  const title = req.body?.title
+  const image = req.body?.image
   try {
+    // return res.status(400).json({ message: "filed", success: false });
     Pusher.trigger('blog-channel', 'new-blog', { blogId, title, message, });
+    if (blogId) {
+      const checkBlog = await Blog.findById(blogId);
+      if (!checkBlog) {
+        return res.status(404).json({ success: false, message: 'Blog not found' });
+      }
 
-    const checkBlog = await Blog.findById(blogId);
-    if (!checkBlog) {
-      return res.status(404).json({ success: false, message: 'Blog not found' });
+      await sendNotifcationToAllUsers(title, message, "blog", req.userId, checkBlog?.thumnail)
+      return res.status(200).json({ success: true, message: 'Notification sent!' });
     }
 
-    await sendNotifcationToAllUsers(title, message, "blog", req.userId, checkBlog?.thumnail)
-    res.status(200).json({ success: true, message: 'Notification sent!' });
+    if (awarenessId) {
+      const checkAwareness = await Awareness.findById(awarenessId?._id);
+      if (!checkAwareness) {
+        return res.status(404).json({ success: false, message: 'Awareness not found' });
+      }
+      // await sendNotifcationToAllUsers(awarenessId?.name, message, "awareness", req.userId, checkAwareness?.image)
+      return res.status(200).json({ success: true, message: 'Notification sent!' });
+    }
+    if (title && !blogId && !image && !awarenessId) {
+      await sendNotifcationToAllUsers(title, message, "general", req.userId, null)
+      return res.status(200).json({ success: true, message: 'Notification sent!' });
+    }
+
+    if (image && title) {
+      await sendNotifcationToAllUsers(title, message, "image", req.userId, image)
+      return res.status(200).json({ success: true, message: 'Notification sent!' });
+    }
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

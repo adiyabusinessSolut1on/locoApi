@@ -62,7 +62,7 @@ const CreateAwareNess = async (req, res) => {
 
 const getAllAwareness = async (req, res) => {
   try {
-    const response = await Awareness.find();
+    const response = await Awareness.find().sort({ createdAt: -1 });
     if (!response?.length > 0) {
       return res.status(403).json({ success: false, message: "No Awareness Found" });
     }
