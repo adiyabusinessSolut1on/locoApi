@@ -6,7 +6,7 @@ exports.deleteImgFromFolder = async (fileName, type) => {
     // console.log("================================================ deleteImgFromFolder ==================================================");
 
     let removeprofileFilePath;
-    console.log("fileName: ", fileName);
+    // console.log("fileName: ", fileName);
 
 
     if (!fileName) {
