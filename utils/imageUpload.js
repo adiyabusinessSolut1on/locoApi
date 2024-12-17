@@ -1,4 +1,5 @@
-/* const path = require('path');
+const path = require('path');
+const fs = require('fs');
 
 
 exports.UploadImage = async (image, type) => {
@@ -40,12 +41,14 @@ exports.UploadImage = async (image, type) => {
     }
 
     return imageName
-} */
+}
 
-const path = require('path');
+/* const path = require('path');
 const fs = require('fs');
 
 exports.UploadImage = async (image, type) => {
+    console.log("image: ", image);
+    console.log("type: ", type);
     try {
         const baseDir = path.join(__dirname, '..', 'assets');
         const imageDir = path.join(baseDir, 'image');
@@ -64,6 +67,8 @@ exports.UploadImage = async (image, type) => {
         const sanitizedFileName = image.name.replace(/\s+/g, '');
         const fileName = `${type}-${date.getTime()}-${sanitizedFileName}`;
 
+        console.log("filename: ", fileName);
+
         let targetDir;
         if (type === 'post') {
             targetDir = imageDir;
@@ -74,6 +79,8 @@ exports.UploadImage = async (image, type) => {
         }
 
         const filePath = path.join(targetDir, fileName);
+        console.log("filePath: ", filePath);
+
 
         // Move the file
         await new Promise((resolve, reject) => {
@@ -86,10 +93,11 @@ exports.UploadImage = async (image, type) => {
                 }
             });
         });
+        console.log("fileName: ", fileName);
 
         return fileName;
     } catch (err) {
         console.error(`UploadImage error: ${err.message}`);
         throw err;
     }
-};
+}; */

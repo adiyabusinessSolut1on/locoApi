@@ -93,6 +93,27 @@ const deletePost = async (req, res) => {
   const { id } = req.params;
   try {
     const response = await Post.findByIdAndDelete(id);
+    // const images = await Media.findById(response?.images)
+    if (response.images && response.images.length > 0) {
+      for (const imageId of response.images) {
+        const image = await Media.findById(imageId);
+        if (image) {
+          await deleteImgFromFolder(image.name, "post"); // Delete image from folder
+          await Media.findByIdAndDelete(imageId); // Delete image document from Media
+        }
+      }
+    }
+
+    // Step 3: Delete videos from the Media collection and storage folder
+    if (response.videos && response.videos.length > 0) {
+      for (const videoId of response.videos) {
+        const video = await Media.findById(videoId);
+        if (video) {
+          await deleteImgFromFolder(video.name, "post-video"); // Delete video from folder
+          await Media.findByIdAndDelete(videoId); // Delete video document from Media
+        }
+      }
+    }
     if (!response) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
     }
@@ -149,6 +170,80 @@ const UpdateImagePost = async (req, res) => {
     return res.status(500).json({ success: false, message: err.message, });
   }
 }
+
+/* const deleteImagePost = async (req, res) => {
+  const id = req.params?.id //this is post id
+  const imageId = req.body.imageId
+  try {
+    const checkPost = await Post.findById(id)
+
+    if (!checkPost) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+    const checkImage = await Media.findById(imageId)
+    if (!checkImage) {
+      return res.status(404).json({ success: false, message: "Image not found" });
+    }
+
+    let type = checkImage.type
+    await deleteImgFromFolder(checkImage.name, type == 'image' ? "post" : "post-vidoe")
+    await checkImage.remove()
+    return res.status(200).json({ message: 'Image deleted successfully.', success: true })
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: err.message, });
+  }
+} */
+const deleteImagePost = async (req, res) => {
+  const id = req.params?.id; // This is the post ID
+  const imageId = req.body.imageId; // This is the image ID
+
+  try {
+    // Step 1: Check if the post exists
+    const checkPost = await Post.findById(id);
+    if (!checkPost) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    // Step 2: Check if the image exists
+    const checkImage = await Media.findById(imageId);
+    if (!checkImage) {
+      return res.status(404).json({ success: false, message: "Image not found" });
+    }
+
+    // Step 3: Delete the image from storage folder
+    let type = checkImage.type; // Assuming 'type' tells if it's an image or video
+    await deleteImgFromFolder(checkImage.name, type === 'image' ? "post" : "post-video");
+
+    // Step 4: Remove the image ID from the images array in Post
+    if (type == 'image') {
+      await Post.findByIdAndUpdate(
+        id,
+        { $pull: { images: imageId } }, // Remove the imageId from the images array
+        { new: true } // Return the updated document
+      );
+    }
+    if (type == 'video') {
+      await Post.findByIdAndUpdate(
+        id,
+        { $pull: { videos: imageId } }, // Remove the imageId from the images array
+        { new: true } // Return the updated document
+      );
+    }
+
+    // Step 5: Remove the image document from the Media collection
+    // await checkImage.remove();
+    await Media.findByIdAndDelete(imageId);
+
+    // Step 6: Return success response
+    return res.status(200).json({ message: 'Image deleted successfully and removed from post.', success: true });
+
+  } catch (error) {
+    console.error("Error deleting image post:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 const userPost = async (req, res) => {
   // console.log("============================ userPost ========================");
@@ -898,5 +993,6 @@ module.exports = {
   userLikedPosts,
   getSinglePost,
   deleteUserAccount,
-  UpdateImagePost
+  UpdateImagePost,
+  deleteImagePost
 };
