@@ -39,7 +39,7 @@ exports.UploadImage = async (image, type) => {
     }
 
     if (type === 'post-vidoe') {
-        const imagePath = path.join(__dirname, '..', "assets", "vidoe", imageName)
+        const imagePath = path.join(__dirname, '..', "assets", "video", imageName)
         image.mv(imagePath, (err) => {
             if (err) {
                 console.log("error on video: ", err);
