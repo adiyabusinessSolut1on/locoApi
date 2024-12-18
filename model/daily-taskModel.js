@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-
-
 const DailyTadkModelSchema = new mongoose.Schema(
   {
     title: {
@@ -42,12 +40,23 @@ const DailyTadkModelSchema = new mongoose.Schema(
         ref: "test_yourself"
       }
     ],
-    type: {
-      type: String,
-      enum: ['awareness', 'blog', 'video', 'quiz', 'test'],
-      default: 'awareness',
-      required: true,  // Add required: true for the type field.
-    }
+    userTasks: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference to User model
+        status: {
+          type: String,
+          enum: ["pending", "completed"],
+          default: "pending", // Default status
+        },
+        completionDate: {
+          type: Date,
+        },
+        taskType: {
+          type: String,
+          enum: ["post", "blog", "video", "quiz", "test", "awareness", "test_yourself"], // Available task types
+        }
+      },
+    ],
   },
   { timestamps: true, }
 );

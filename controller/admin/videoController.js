@@ -76,7 +76,7 @@ const UploadVideo = async (req, res) => {
 
 const GetALLVideo = async (req, res) => {
   try {
-    const response = await Video.find();
+    const response = await Video.find().sort({ createdAt: -1 });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });

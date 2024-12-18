@@ -111,6 +111,21 @@ const getAllDailyTask = async (req, res) => {
 
   try {
 
+    /* 
+    const response = await DailyTask.find({
+  createdAt: { $gte: startOfDay, $lte: endOfDay },
+  'userTasks.userId': userId,  // Filter by userId in userTasks
+  $or: [
+    { 'userTasks.status': 'completed' },  // Include tasks that are completed by the user
+    { 'userTasks.userId': { $exists: false } }, // Include tasks that do not have a user assigned yet
+  ]
+})
+.populate("video")
+.populate("quiz")
+.populate("test")
+.populate("blog")
+.populate("awareness");
+    */
     const response = await DailyTask.find({ createdAt: { $gte: startOfDay, $lte: endOfDay } }).populate("video").populate("quiz").populate("test").populate("blog").populate("awareness");
     if (!response?.length > 0) {
       return res.status(404).json({ success: false, message: "No Daily Task Found" });
@@ -120,6 +135,26 @@ const getAllDailyTask = async (req, res) => {
     res.status(500).send({ success: false, message: "Inter Server Error", error: err });
   }
 };
+
+const dailyTaksCompleted = async (req, res) => {
+  const dailyTaskId = req.params?.id //dailyTaskId
+  const type = req.body?.type
+  try {
+    const checkUser = await User.findById(req.userId)
+    if (!checkUser) {
+      return res.status(400).json({ success: false, message: "User not found" });
+    }
+    const dailyTask = await DailyTask.findById(dailyTaskId);
+    if (!dailyTask) {
+      return res.status(404).json({ success: false, message: "Daily Task not found" });
+    }
+    if (type === "video") {
+      checkUser.daily_task.find((item) => item._id.toString() === dailyTaskId).video = true;
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: "Inter Server Error", error: err });
+  }
+}
 
 const getAllQuizTestCategory = async (req, res) => {
   try {
