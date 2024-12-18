@@ -5,17 +5,25 @@ const fs = require('fs');
 exports.UploadImage = async (image, type) => {
     // console.log("image: ", image);
     // console.log("type: ", type);
-    const checkDir = path.join(__dirname, '..', "assets", "image")
-    const checkImagedir = path.dirname(checkDir);
-    if (!fs.existsSync(checkImagedir)) {
-        fs.mkdirSync(checkImagedir, { recursive: true }); // Create the directory (and parent directories if necessary)
+    const imageDir = path.join(__dirname, '..', "assets", "image");
+    const videoDir = path.join(__dirname, '..', "assets", "video");
+
+    // Function to create a directory if it doesn't exist
+    function ensureDirectoryExists(dirPath) {
+
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+            console.log(`Directory created: ${dirPath}`);
+        } else {
+            console.log(`Directory already exists: ${dirPath}`);
+        }
     }
 
-    const vidoePath = path.join(__dirname, '..', "assets", "vidoe")
-    const checkVideodir = path.dirname(vidoePath);
-    if (!fs.existsSync(checkVideodir)) {
-        fs.mkdirSync(checkVideodir, { recursive: true }); // Create the directory (and parent directories if necessary)
-    }
+    // Ensure 'assets/image' directory exists
+    ensureDirectoryExists(imageDir);
+
+    // Ensure 'assets/video' directory exists
+    ensureDirectoryExists(videoDir);
 
     const date = new Date();
     const imageName = type + date.getTime() + image.name.replace(/\s+/g, '')
