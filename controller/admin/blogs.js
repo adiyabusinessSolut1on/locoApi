@@ -320,7 +320,7 @@ const CreateBlogs = async (req, res) => {
     await userBlog.save();
 
     const admin = await User.findOne({ role: 'admin' })
-    await sendNotifcationToAllUsers(title, content, "blog", admin?._id, thumnail)
+    await sendNotifcationToAllUsers(title, content, "blog", admin?._id, thumnail, blog?._id)
 
     res.status(201).json({ success: true, data: userBlog, message: "Blog Created" });
   } catch (error) {
@@ -361,7 +361,7 @@ const CreateNEWBlog = async (req, res) => {
 
     const admin = await User.findOne({ role: 'admin' })
 
-    await sendNotifcationToAllUsers(req.body?.title, req?.body?.title, "blog", admin?._id, req.body?.thumnail)
+    await sendNotifcationToAllUsers(req.body?.title, req?.body?.title, "blog", admin?._id, req.body?.thumnail, response?._id)
     res.status(201).json({ success: true, message: "Blog Uploaded", data: response, });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

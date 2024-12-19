@@ -49,7 +49,7 @@ exports.readAtNotification = async (req, res) => {
 
 
 
-exports.sendNotifcationToAllUsers = async (title, description, type, senderId, image) => {
+exports.sendNotifcationToAllUsers = async (title, description, type, senderId, image, notifyId) => {
 
     // console.log(" ========================================== sendNotifcationToAllUsers ==========================================");
     // console.log("title: ", title);
@@ -66,7 +66,7 @@ exports.sendNotifcationToAllUsers = async (title, description, type, senderId, i
             users.forEach(async (user) => {
                 let customTitle = `Hi ${user.name}\n${title}`
                 if (user.fcmToken) {
-                    await sendMessage(user._id, customTitle, description, type, user?.fcmToken, senderId, image)
+                    await sendMessage(user._id, customTitle, description, type, user?.fcmToken, senderId, image, notifyId)
                 }
             })
         }

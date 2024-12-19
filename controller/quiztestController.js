@@ -136,25 +136,53 @@ const getAllDailyTask = async (req, res) => {
   }
 };
 
-const dailyTaksCompleted = async (req, res) => {
-  const dailyTaskId = req.params?.id //dailyTaskId
-  const type = req.body?.type
+const dailyTasksCompleted = async (req, res) => {
+  // console.log(" ================================= Daily Task Completed ================================= ");
+  // console.log("req.body: ", req.body);
+  // console.log("req.params: ", req.params);
+  // console.log("req.userId: ", req.userId);
+
+  const dailyTaskId = req.params?.id; // dailyTaskId
+  const type = req.body?.type; // Type of task to mark completed (e.g., blog, awareness, etc.)
   try {
-    const checkUser = await User.findById(req.userId)
+    const checkUser = await User.findById(req.userId);
     if (!checkUser) {
       return res.status(400).json({ success: false, message: "User not found" });
     }
+
     const dailyTask = await DailyTask.findById(dailyTaskId);
     if (!dailyTask) {
       return res.status(404).json({ success: false, message: "Daily Task not found" });
     }
-    if (type === "video") {
-      checkUser.daily_task.find((item) => item._id.toString() === dailyTaskId).video = true;
+
+    const userTaskIndex = dailyTask.userTasks.findIndex(
+      (task) => task.userId.toString() === req.userId && task.taskType === type
+    );
+
+    if (userTaskIndex > -1) {
+      // If the task already exists, update it
+      dailyTask.userTasks[userTaskIndex].status = "completed";
+      dailyTask.userTasks[userTaskIndex].completionDate = new Date();
+    } else {
+      // If the task does not exist, add a new task entry
+      dailyTask.userTasks.push({
+        userId: req.userId,
+        status: "completed",
+        completionDate: new Date(),
+        taskType: type,
+      });
     }
+    // console.log("dailyTask:", dailyTask);
+
+    await dailyTask.save();
+
+    res.status(200).json({ success: true, message: `${type} task marked as completed.`, });
   } catch (error) {
-    res.status(500).send({ success: false, message: "Inter Server Error", error: err });
+    console.error("Error marking task as completed:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error", error });
   }
-}
+};
+
 
 const getAllQuizTestCategory = async (req, res) => {
   try {
@@ -170,6 +198,7 @@ const getAllQuizTestCategory = async (req, res) => {
 
 const getSingleDailyTask = async (req, res) => {
   const { id } = req.params
+  const userId = req.userId
   try {
     const result = await DailyTask.findById(id).populate("video").populate("quiz").populate("test").populate("blog").populate("awareness");
     if (!result) {
@@ -181,6 +210,56 @@ const getSingleDailyTask = async (req, res) => {
   }
 }
 
+const getSingleDailyTaskSTatus = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  try {
+    const dailyTask = await DailyTask.findById(id)
+      .populate("video")
+      .populate("quiz")
+      .populate("test")
+      .populate("blog")
+      .populate("awareness");
+
+    if (!dailyTask) {
+      return res.status(404).json({ success: false, message: "Daily Task not found" });
+    }
+
+    // Prepare a response with completion status for the logged-in user
+    const userTaskStatuses = dailyTask.userTasks.reduce((acc, task) => {
+      if (task.userId.toString() === userId) {
+        acc[task.taskType] = {
+          status: task.status,
+          completionDate: task.completionDate,
+        };
+      }
+      return acc;
+    }, {});
+
+    const response = {
+      message: "Task fetched successfully",
+      success: true,
+      result: {
+        ...dailyTask._doc,
+        completionStatus: {
+          video: userTaskStatuses.video || { status: "pending", completionDate: null },
+          quiz: userTaskStatuses.quiz || { status: "pending", completionDate: null },
+          test: userTaskStatuses.test || { status: "pending", completionDate: null },
+          blog: userTaskStatuses.blog || { status: "pending", completionDate: null },
+          awareness: userTaskStatuses.awareness || { status: "pending", completionDate: null },
+        },
+      },
+    };
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching single daily task:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error", error });
+  }
+};
+
+
 
 module.exports = {
   userComplteteQuiz, userComplteteTest, userComplteteDailyTask,
@@ -188,5 +267,7 @@ module.exports = {
   getAllQuizTestCategory,
   getAllQuiz,
   getAllDailyTask,
-  getSingleDailyTask
+  getSingleDailyTask,
+  dailyTasksCompleted,
+  getSingleDailyTaskSTatus
 }

@@ -306,7 +306,7 @@ const userPost = async (req, res) => {
     if (result) {
       return res.status(201).json({ success: true, message: "post created successfully", data: result, });
     }
-    await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, notifyImages[0])
+    await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, notifyImages[0], newPost?._id)
     return res.status(400).json({ success: false, message: "failed to upload the post", })
     // const imageModal = new Media({name})
 

@@ -19,7 +19,7 @@ const NotificationPush = async (req, res) => {
         return res.status(404).json({ success: false, message: 'Blog not found' });
       }
 
-      await sendNotifcationToAllUsers(title, message, "blog", req.userId, checkBlog?.thumnail)
+      await sendNotifcationToAllUsers(title, message, "blog", req.userId, checkBlog?.thumnail, checkBlog?._id)
       return res.status(200).json({ success: true, message: 'Notification sent!' });
     }
 
@@ -28,7 +28,7 @@ const NotificationPush = async (req, res) => {
       if (!checkAwareness) {
         return res.status(404).json({ success: false, message: 'Awareness not found' });
       }
-      // await sendNotifcationToAllUsers(awarenessId?.name, message, "awareness", req.userId, checkAwareness?.image)
+      await sendNotifcationToAllUsers(awarenessId?.name, message, "awareness", req.userId, checkAwareness?.image, awarenessId?._id)
       return res.status(200).json({ success: true, message: 'Notification sent!' });
     }
     if (title && !blogId && !image && !awarenessId) {
