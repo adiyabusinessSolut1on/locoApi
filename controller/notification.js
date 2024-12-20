@@ -50,21 +50,27 @@ exports.readAtNotification = async (req, res) => {
 
 
 exports.sendNotifcationToAllUsers = async (title, description, type, senderId, image, notifyId) => {
-
-    // console.log(" ========================================== sendNotifcationToAllUsers ==========================================");
-    // console.log("title: ", title);
-    // console.log("description: ", description);
-    // console.log("type: ", type);
-    // console.log("senderId: ", senderId);
-    // console.log("image: ", image);
-
-    // need to put aggregation that which user is sending notification will not get notify left of him will get all user notifications
-
     try {
         const users = await User.find()
         if (users.length > 0) {
             users.forEach(async (user) => {
-                let customTitle = `Hi ${user.name}\n${title}`
+                let customTitle
+                // let customTitle = `Hi ${user.name}\n${title}`
+                if (type == 'blog') {
+                    customTitle = `Hi ${user.name}, please explore the blog\n${title}`
+                } else if (type == 'post') {
+                    // Hi Karim, Rajesh just shared an exciting post! Don’t miss out—check it
+                    customTitle = `Hi ${user.name}, ${user?._id == senderId ? user?.name : ''} just shared an exciting post! Don't miss out—check it\n${title}`
+                } else if (type == 'awareness') {
+                    // Hi [Name], breaking news just dropped! Stay ahead—click now to read the latest update and stay informed!
+                    customTitle = `Hi ${user.name}, breaking news just dropped! Stay ahead—click now to read the latest update and stay informed!\n${title}`
+                } else if (type == 'general') {
+                    customTitle = `Hi ${user.name}\n${title}`
+                } else if (type == 'image') {
+                    customTitle = `Hi ${user.name}\n${title}`
+                } else {
+                    customTitle = `Hi ${user.name}\n${title}`
+                }
                 if (user.fcmToken) {
                     await sendMessage(user._id, customTitle, description, type, user?.fcmToken, senderId, image, notifyId)
                 }

@@ -89,6 +89,49 @@ const getUser = async (req, res) => {
   }
 };
 
+const UserForgotPassword = async (req, res) => {
+  const mobile = req.body?.mobile
+  const password = req.body?.password
+  try {
+    const checkUser = await User.findOne({ mobile: mobile })
+    if (!checkUser) {
+      return res.status(404).json({ success: false, message: "User Not Found" });
+    }
+    // sending otp function
+    // const otp = Math.floor(1000 + Math.random() * 9000);
+    checkUser.otp = '1234';
+    const hashPassword = await bcrypt.hash(password, 10);
+    checkUser.password = hashPassword
+    checkUser.save()
+
+    const message = `Your OTP is ${otp}.`;
+    // sendMessage(checkUser.mobile, message);
+    return res.status(200).json({ success: true, message: "OTP sent successfully" });
+
+
+    // return res.status(200).json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, });
+  }
+}
+
+const verifyOtp = async (req, res) => {
+  const mobile = req.body?.mobile
+  const otp = req.body?.otp
+  try {
+    const checkUser = await User.findOne({ mobile: mobile })
+    if (!checkUser) {
+      return res.status(404).json({ success: false, message: "User Not Found" });
+    }
+    if (checkUser.otp !== otp) {
+      return res.status(401).json({ success: false, message: "Invalid OTP" });
+    }
+    return res.status(200).json({ success: true, message: "OTP verified successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, });
+  }
+}
+
 const deletePost = async (req, res) => {
   const { id } = req.params;
   try {
@@ -246,26 +289,19 @@ const deleteImagePost = async (req, res) => {
 
 
 const userPost = async (req, res) => {
-  // console.log("============================ userPost ========================");
-
   // need to handle image and video uploading with array images and videos
-  const { content } = req.body;
-  // console.log("req.files: ", req.files);
+  const content = req.body?.content;
   const files = req.files
-  const images = req.files?.images
-  const videos = req.files?.videos
+  // const images = req.files?.images
+  // const videos = req.files?.videos
 
-  // console.log("content: ", content);
-
-
-  // console.log("images: ", images);
-  // console.log("videos: ", videos);
   const imageIds = [];
   const videoIds = [];
 
   let notifyImages = []
   try {
-    if (files.images) {
+
+    if (files?.images) {
       const images = Array.isArray(files.images) ? files.images : [files.images];
       for (const image of images) {
         const uploaded = await UploadImage(image, 'post');
@@ -284,7 +320,7 @@ const userPost = async (req, res) => {
     }
 
     // Handle video uploads
-    if (files.videos) {
+    if (files?.videos) {
       const videos = Array.isArray(files.videos) ? files.videos : [files.videos];
       for (const video of videos) {
         const uploaded = await UploadImage(video, 'post-vidoe');
@@ -304,15 +340,10 @@ const userPost = async (req, res) => {
     const result = await newPost.save();
 
     if (result) {
+      await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, notifyImages.length > 0 ? notifyImages[0] : null, newPost?._id)
       return res.status(201).json({ success: true, message: "post created successfully", data: result, });
     }
-    await sendNotifcationToAllUsers("One New Post Created Recently", content, "post", req.userId, notifyImages[0], newPost?._id)
     return res.status(400).json({ success: false, message: "failed to upload the post", })
-    // const imageModal = new Media({name})
-
-    // const newPost = new Post({ thumnail: thumnail, mediatype: mediatype, content: content, user: req.userId, });
-
-    // await newPost.save();
 
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message, });
@@ -994,5 +1025,7 @@ module.exports = {
   getSinglePost,
   deleteUserAccount,
   UpdateImagePost,
-  deleteImagePost
+  deleteImagePost,
+  UserForgotPassword,
+  verifyOtp,
 };

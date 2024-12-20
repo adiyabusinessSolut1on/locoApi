@@ -20,8 +20,8 @@ const NotificationSchema = new mongoose.Schema({
         default: false
     },
     notifyId: {
-        type: mongoose.Schema.Types.ObjectId,
-        // type: String,
+        // type: mongoose.Schema.Types.ObjectId,
+        type: String,
     },
     notificationType: {
         type: String,

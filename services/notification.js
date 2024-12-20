@@ -11,7 +11,7 @@ exports.sendMessage = async (reciver, title, description, type, fcmToken, sender
     // console.log("=============== sendMessage ============");
     // console.log("sender: ", sender, "reciver: ", reciver, "title: ", title, " description: ", description, " type: ", type, "fcmToken: ", fcmToken, "image: ", image);
 
-    // console.log("fcmToken: ", fcmToken);
+    // console.log("fcmToken: ", notifyId);
     const messageC = {
         notification: {
             title: title,
@@ -24,6 +24,8 @@ exports.sendMessage = async (reciver, title, description, type, fcmToken, sender
         token: fcmToken
     }
     try {
+        console.log("try side");
+
         if (!fcmToken) {
             return "User not login yet once!"
         }
@@ -33,7 +35,7 @@ exports.sendMessage = async (reciver, title, description, type, fcmToken, sender
 
 
 
-        const result = await Notification.create({ title: title, description: description, senderId: sender ? sender : checkAdmin?._id, recipient: reciver, notificationType: type ? type : 'notify', image: image, notifyId: notifyId ? notifyId : '' })
+        const result = await Notification.create({ title: title, description: description, senderId: sender ? sender : checkAdmin?._id, recipient: reciver, notificationType: type ? type : 'notify', image: image, notifyId: notifyId ? notifyId : null })
 
         if (result) {
             admin.messaging().send(messageC).then(async (response) => {

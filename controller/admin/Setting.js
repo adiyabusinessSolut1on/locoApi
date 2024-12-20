@@ -22,6 +22,25 @@ exports.getAppSetting = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+exports.getAppSettingByAppName = async (req, res) => {
+    // console.log("req.query =: ", req.query)
+    const appName = req.query?.appName
+    try {
+        if (!appName) {
+            return res.status(400).json({ success: false, message: "App name is required." });
+        }
+        const result = await Setting.findOne({ appName })
+        if (result) {
+            return res.status(200).json({ success: true, data: result });
+        }
+        return res.status(404).json({ success: false, message: `App Setting not found for app name: ${appName}` });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+
 exports.addSetting = async (req, res) => {
     const id = req.params?.id
 
@@ -46,6 +65,10 @@ exports.addSetting = async (req, res) => {
             }
             return res.status(400).json({ success: false, message: "Failed to update app setting!" });
         } else {
+            const checkVersion = await Setting.findOne({ $or: [{ appName: appName }, { versionCode: versionCode }] });
+            if (checkVersion) {
+                return res.status(400).json({ success: false, message: `App Setting with the version ${versionCode} code and app name ${appName} already exists.` });
+            }
             const result = await Setting.create({ versionCode, versionName, comment, url, appName })
             if (result) {
                 return res.status(201).json({ success: true, data: result, message: "App Setting updated successfully." });
