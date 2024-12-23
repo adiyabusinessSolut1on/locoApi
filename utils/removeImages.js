@@ -20,6 +20,10 @@ exports.deleteImgFromFolder = async (fileName, type) => {
         removeprofileFilePath = path.join(__dirname, '..', "assets", "vidoe", fileName)
     }
 
+    if (type === 'profile') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "profile", fileName)
+    }
+
     // console.log("removeProfileFilePath: ", removeprofileFilePath);
     fs.unlink(removeprofileFilePath, (err) => {
         if (err) {

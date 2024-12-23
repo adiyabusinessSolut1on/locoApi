@@ -7,6 +7,7 @@ exports.UploadImage = async (image, type) => {
     // console.log("type: ", type);
     const imageDir = path.join(__dirname, '..', "assets", "image");
     const videoDir = path.join(__dirname, '..', "assets", "video");
+    const profileDir = path.join(__dirname, '..', "assets", "profile");
 
     // Function to create a directory if it doesn't exist
     function ensureDirectoryExists(dirPath) {
@@ -25,6 +26,8 @@ exports.UploadImage = async (image, type) => {
     // Ensure 'assets/video' directory exists
     ensureDirectoryExists(videoDir);
 
+    ensureDirectoryExists(profileDir);
+
     const date = new Date();
     const imageName = type + date.getTime() + image.name.replace(/\s+/g, '')
     if (type === 'post') {
@@ -33,6 +36,17 @@ exports.UploadImage = async (image, type) => {
             if (err) {
                 console.log("error on image: ", err);
 
+                return false
+            }
+        })
+    }
+
+    // profile
+    if (type === 'profile') {
+        const imagePath = path.join(__dirname, '..', "assets", "profile", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on profile image: ", err);
                 return false
             }
         })

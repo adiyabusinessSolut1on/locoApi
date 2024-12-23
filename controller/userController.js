@@ -647,14 +647,34 @@ const getSeachMutualpostUsingwantedLobby = async (req, res) => {
   }
 };
 const UpdateUserProfile = async (req, res) => {
+
+  // console.log("profile update: ", req.files)
+  // console.log("profile body: ", req.body)
   const id = req.userId;
   const data = req.body;
-  try {
-    const updatedUser = await User.findByIdAndUpdate(id, { $set: data }, { new: true }).select("-password");
+  const profile = req.files?.profile
 
-    if (!updatedUser) {
+  try {
+
+    const checkuser = await User.findById(id)
+    if (!checkuser) {
       return res.status(404).send({ message: "User not found" });
     }
+
+    if (checkuser.image) {
+      await deleteImgFromFolder(checkuser.image, "profile");
+    }
+
+    if (profile) {
+      const uploaded = await UploadImage(profile, 'profile');
+      data.image = uploaded;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, { $set: data }, { new: true }).select("-password");
+
+    /* if (!updatedUser) {
+      return res.status(404).send({ message: "User not found" });
+    } */
 
     res.status(202).send({ success: true, message: "user Updated", data: updatedUser });
   } catch (err) {
