@@ -76,7 +76,6 @@ exports.sendNotifcationToAllUsers = async (title, description, type, senderId, i
                 }
             })
         }
-        // sendMessage(sender, reciver, title, content, "blog")
     } catch (error) {
         return error.message
     }

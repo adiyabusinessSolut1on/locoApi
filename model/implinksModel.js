@@ -4,7 +4,7 @@ const ImportantLinks = new mongoose.Schema(
   {
     title: {
       type: String,
-      required:true
+      required: true
     },
     link: {
       type: String,
@@ -15,6 +15,10 @@ const ImportantLinks = new mongoose.Schema(
       enum: [false, true],
       default: false,
     },
+    isExternal: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,

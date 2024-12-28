@@ -8,6 +8,12 @@ exports.UploadImage = async (image, type) => {
     const imageDir = path.join(__dirname, '..', "assets", "image");
     const videoDir = path.join(__dirname, '..', "assets", "video");
     const profileDir = path.join(__dirname, '..', "assets", "profile");
+    const notificationDir = path.join(__dirname, '..', "assets", "notification");
+    const blogDir = path.join(__dirname, '..', "assets", "blog");
+    const blogCategoryDir = path.join(__dirname, '..', "assets", "blogCategory");
+    const awarenessDir = path.join(__dirname, '..', "assets", "awareness");
+    const awarenessCategoryDir = path.join(__dirname, '..', "assets", "awarenessCategory");
+    const importantLinkDir = path.join(__dirname, '..', "assets", "importantLink");
 
     // Function to create a directory if it doesn't exist
     function ensureDirectoryExists(dirPath) {
@@ -27,6 +33,14 @@ exports.UploadImage = async (image, type) => {
     ensureDirectoryExists(videoDir);
 
     ensureDirectoryExists(profileDir);
+
+    ensureDirectoryExists(notificationDir);
+    ensureDirectoryExists(blogDir);
+    ensureDirectoryExists(blogCategoryDir);
+    ensureDirectoryExists(blogCategoryDir);
+    ensureDirectoryExists(awarenessDir);
+    ensureDirectoryExists(awarenessCategoryDir);
+    ensureDirectoryExists(importantLinkDir);
 
     const date = new Date();
     const imageName = type + date.getTime() + image.name.replace(/\s+/g, '')
@@ -50,13 +64,94 @@ exports.UploadImage = async (image, type) => {
                 return false
             }
         })
+
     }
 
+    // notification
+    if (type === 'notification') {
+        const imagePath = path.join(__dirname, '..', "assets", "notification", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on notification image: ", err);
+                return false
+            }
+        })
+    }
+
+    // notification
+    if (type === 'notification') {
+        const imagePath = path.join(__dirname, '..', "assets", "notification", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on notification image: ", err);
+                return false
+            }
+        })
+    }
+
+    // blog
+    if (type === 'blog') {
+        const imagePath = path.join(__dirname, '..', "assets", "blog", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // post-vidoe
     if (type === 'post-vidoe') {
         const imagePath = path.join(__dirname, '..', "assets", "video", imageName)
         image.mv(imagePath, (err) => {
             if (err) {
                 console.log("error on video: ", err);
+                return false
+            }
+        })
+    }
+
+    // blogCategoryDir
+    if (type === 'blogCategory') {
+        const imagePath = path.join(__dirname, '..', "assets", "blogCategory", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+
+    // awareness
+    if (type === 'awareness') {
+        const imagePath = path.join(__dirname, '..', "assets", "awareness", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+
+    // awarenessCategory
+    if (type === 'awarenessCategory') {
+        const imagePath = path.join(__dirname, '..', "assets", "awarenessCategory", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // importantLink
+    if (type === 'importantLink') {
+        const imagePath = path.join(__dirname, '..', "assets", "importantLink", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
                 return false
             }
         })

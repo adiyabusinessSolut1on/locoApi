@@ -54,6 +54,7 @@ const io = new Server(server, {
 // }));
 
 app.use(fileUpload());
+app.use(express.json());
 
 app.use(express.static(__dirname + 'assets'));
 app.use('/images', express.static(__dirname + '/assets'));

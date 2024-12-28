@@ -1,15 +1,19 @@
 const Pusher = require("../../config/pusher");
 const Awareness = require("../../model/awareness/awarenessModel");
 const Blog = require("../../model/blogs/blogModules");
+const { UploadImage } = require("../../utils/imageUpload");
 const { sendNotifcationToAllUsers } = require("../notification");
 
 const NotificationPush = async (req, res) => {
   // console.log("req.body: ", req.body);
+  // console.log("req.files: ", req.files);
+
   const message = req.body?.message
   const awarenessId = req.body?.awarenessId
   const blogId = req.body?.blogId
   const title = req.body?.title
-  const image = req.body?.image
+  const image = req.files?.image
+
   try {
     // return res.status(400).json({ message: "filed", success: false });
     Pusher.trigger('blog-channel', 'new-blog', { blogId, title, message, });
@@ -37,10 +41,11 @@ const NotificationPush = async (req, res) => {
     }
 
     if (image && title) {
-      await sendNotifcationToAllUsers(title, message, "image", req.userId, image)
+      const imageUrl = await UploadImage(image, 'notification');
+      await sendNotifcationToAllUsers(title, message, "image", req.userId, imageUrl)
       return res.status(200).json({ success: true, message: 'Notification sent!' });
     }
-
+    // return res.status(400).json({ success: true, message: 'Ok' })
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

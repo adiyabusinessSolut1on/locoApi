@@ -62,13 +62,17 @@ const deleteVideoCategory = async (req, res) => {
 };
 
 const UploadVideo = async (req, res) => {
+  console.log("req.body: ", req.body);
+  console.log("req.files: ", req.files);
+
   try {
-    const response = await Video.create(req.body);
+    /* const response = await Video.create(req.body);
     if (response) {
       res.status(201).json({ success: true, data: response, message: "Video Uploaded" });
     } else {
       res.status(400).json({ success: false, message: "Video not Uploaded" });
-    }
+    } */
+    res.status(400).json({ success: false, message: "Video not Uploaded" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
