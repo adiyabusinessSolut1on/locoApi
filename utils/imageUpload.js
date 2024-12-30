@@ -14,15 +14,21 @@ exports.UploadImage = async (image, type) => {
     const awarenessDir = path.join(__dirname, '..', "assets", "awareness");
     const awarenessCategoryDir = path.join(__dirname, '..', "assets", "awarenessCategory");
     const importantLinkDir = path.join(__dirname, '..', "assets", "importantLink");
+    const uploadThumbnailDir = path.join(__dirname, '..', "assets", "uploadThumbnail");
+    const uploadVideoDir = path.join(__dirname, '..', "assets", "uploadVideo");
+    const userProfileDir = path.join(__dirname, '..', "assets", "userProfile");
+    const sponsorVideoDir = path.join(__dirname, '..', "assets", "sponsorVideo");
+    const sponsorImageDir = path.join(__dirname, '..', "assets", "sponsorImage");
+    const quizCategoryDir = path.join(__dirname, '..', "assets", "quizCategory");
 
     // Function to create a directory if it doesn't exist
     function ensureDirectoryExists(dirPath) {
 
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
-            console.log(`Directory created: ${dirPath}`);
+            // console.log(`Directory created: ${dirPath}`);
         } else {
-            console.log(`Directory already exists: ${dirPath}`);
+            // console.log(`Directory already exists: ${dirPath}`);
         }
     }
 
@@ -41,6 +47,12 @@ exports.UploadImage = async (image, type) => {
     ensureDirectoryExists(awarenessDir);
     ensureDirectoryExists(awarenessCategoryDir);
     ensureDirectoryExists(importantLinkDir);
+    ensureDirectoryExists(uploadThumbnailDir);
+    ensureDirectoryExists(uploadVideoDir);
+    ensureDirectoryExists(userProfileDir);
+    ensureDirectoryExists(sponsorVideoDir);
+    ensureDirectoryExists(sponsorImageDir);
+    ensureDirectoryExists(quizCategoryDir);
 
     const date = new Date();
     const imageName = type + date.getTime() + image.name.replace(/\s+/g, '')
@@ -149,6 +161,73 @@ exports.UploadImage = async (image, type) => {
     // importantLink
     if (type === 'importantLink') {
         const imagePath = path.join(__dirname, '..', "assets", "importantLink", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // uploadThumbnail
+    if (type === 'uploadThumbnail') {
+        const imagePath = path.join(__dirname, '..', "assets", "uploadThumbnail", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+
+    // uploadVideo
+    if (type === 'uploadVideo') {
+        const imagePath = path.join(__dirname, '..', "assets", "uploadVideo", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // userProfile
+    if (type === 'userProfile') {
+        const imagePath = path.join(__dirname, '..', "assets", "userProfile", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // sponsorVideo
+    if (type === 'sponsorVideo') {
+        const imagePath = path.join(__dirname, '..', "assets", "sponsorVideo", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // sponsorImage
+    if (type === 'sponsorImage') {
+        const imagePath = path.join(__dirname, '..', "assets", "sponsorImage", imageName)
+        image.mv(imagePath, (err) => {
+            if (err) {
+                console.log("error on image: ", err);
+                return false
+            }
+        })
+    }
+
+    // quizCategory
+    if (type === 'quizCategory') {
+        const imagePath = path.join(__dirname, '..', "assets", "quizCategory", imageName)
         image.mv(imagePath, (err) => {
             if (err) {
                 console.log("error on image: ", err);

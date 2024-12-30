@@ -4,19 +4,19 @@ const sponsorCompanySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, 
+      required: true,
     },
     type: {
       type: String,
-      required: true, 
+      required: true,
     },
     image: {
       type: String,
-      required: true, 
+      required: true,
     },
     link: {
       type: String,
-      required: true, 
+      required: true,
     },
     video: {
       type: String,
@@ -28,16 +28,17 @@ const sponsorCompanySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isYoutube: {
+      type: Boolean,
+      default: false,
+    },
     products: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "sponsorproduct",
       },
     ],
-  },
-  {
-    timestamps: true,
-  }
+  }, { timestamps: true, }
 );
 
 const SponsorCompany = mongoose.model("SponsorCompany", sponsorCompanySchema);

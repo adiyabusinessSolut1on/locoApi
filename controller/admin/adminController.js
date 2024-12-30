@@ -7,7 +7,9 @@ const LogInFailAlert = require("../../email-templates/login-failed-alert");
 const ChangePasswordFail_Alert = require("../../email-templates/password-change-alert");
 const jwt = require("jsonwebtoken");
 const Mutual = require("../../model/mutual")
-const Posts = require("../../model/post")
+const Posts = require("../../model/post");
+const { UploadImage } = require("../../utils/imageUpload");
+const { deleteImgFromFolder } = require("../../utils/removeImages");
 const getAllMutualPost = async (req, res) => {
   try {
     const response = await Mutual.find()
@@ -161,45 +163,43 @@ const getUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const user = await User.find({ role: "user" }).sort({ createdAt: -1 }).select("-password")
-      .select("-otp");
+    const user = await User.find({ role: "user" }).sort({ createdAt: -1 }).select("-password").select("-otp");
     return res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message, });
   }
 };
 
 const getUserById = async (req, res) => {
   const { id } = req.params
   try {
-    const user = await User.findById(id)
-      .select("-password")
-      .select("-otp");
+    const user = await User.findById(id).select("-password").select("-otp");
     if (!user) {
-      return res
-        .status(403)
-        .json({ success: false, message: "user Not Found" });
+      return res.status(403).json({ success: false, message: "user Not Found" });
     }
     return res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message, });
   }
 };
+
 const UpdateUser = async (req, res) => {
   const { id } = req.params
   const data = req.body;
+  const image = req.files.image
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: data },
-      { new: true }
-    ).select("-password");
+    const checkUserExists = await User.findById(id).select("-password -otp")
+    if (!checkUserExists) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (image) {
+      const filename = await UploadImage(image, 'userProfile');
+      data.image = filename;
+      if (checkUserExists.image) {
+        await deleteImgFromFolder(checkUserExists.image, 'userProfile');
+      }
+    }
+    const updatedUser = await User.findByIdAndUpdate(id, { $set: data }, { new: true }).select("-password");
 
     if (!updatedUser) {
       return res.status(404).send({ message: 'User not found' });
@@ -207,16 +207,17 @@ const UpdateUser = async (req, res) => {
 
     res.status(202).send({ success: true, message: "user Updated", data: updatedUser });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message, });
   }
 }
+
 const deleteUser = async (req, res) => {
   try {
     const response = await User.findByIdAndDelete(req.params.id);
     if (response) {
+      if (response.image) {
+        await deleteImgFromFolder(response.image, 'userProfile');
+      }
       res.status(200).json({ success: true, message: "User deleted" });
     } else {
       res.status(404).json({ success: false, message: "User not found" });
@@ -225,6 +226,7 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 const ForGetPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -233,62 +235,41 @@ const ForGetPassword = async (req, res) => {
     const OTP = Math.floor(Math.random() * (max - min + 1)) + min;
     const user = await User.findOne({ email: email });
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid Email credentials" });
+      return res.status(401).json({ success: false, message: "Invalid Email credentials" });
     }
     await User.findByIdAndUpdate(user._id, { otp: OTP }, { new: true });
     const sentmail = await SendOTP(email, OTP)
     if (!sentmail.success) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Something Went Wrong While Sending OTP " });
+      return res.status(403).json({ success: false, message: "Something Went Wrong While Sending OTP " });
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "OTP has been sent on you email " });
+    return res.status(200).json({ success: true, message: "OTP has been sent on you email " });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message, });
   }
 };
+
 const UserRegisterdByAdmin = async (req, res) => {
-  const { image, name, email, mobile, password, designation, division } =
-    req.body;
+  const { name, email, mobile, password, designation, division } = req.body;
+  const image = req.files.image
   try {
     const user = await User.findOne({ email: email });
     if (user) {
-      return res.status(409).json({
-        success: false,
-        message: "User already exists",
-      });
+      return res.status(409).json({ success: false, message: "User already exists", });
+    }
+
+    let imageName;
+    if (image) {
+      imageName = await UploadImage(image, 'userProfile');
     }
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      image: image,
-      name: name,
-      email: email,
-      mobile: mobile,
-      password: hashPassword,
-      designation: designation,
-      division: division,
-    });
+    const newUser = new User({ image: imageName, name: name, email: email, mobile: mobile, password: hashPassword, designation: designation, division: division, });
 
     await newUser.save();
 
-    res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      data: newUser,
-    });
+    res.status(201).json({ success: true, message: "User created successfully", data: newUser, });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message, });
   }
 };
 

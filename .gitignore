@@ -1,10 +1,2 @@
 node_modules
-assets/awareness
-assets/awarenessCategory
-assets/blog
-assets/blogCategory
-assets/image
-assets/importantLink
-assets/notification
-assets/profile
-assets/video
+./assets

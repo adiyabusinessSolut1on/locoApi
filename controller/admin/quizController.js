@@ -1,6 +1,8 @@
 const Quiz = require("../../model/quiz/quizModel");
 const QuizQuestion = require("../../model/quiz/quizquestions");
 const QuizTestCategory = require("../../model/quiz/quiz_testCategoryModel");
+const { UploadImage } = require("../../utils/imageUpload");
+const { deleteImgFromFolder } = require("../../utils/removeImages");
 const CreatQuiz = async (req, res) => {
   try {
     const response = await Quiz.create(req.body);
@@ -142,6 +144,7 @@ const UpdateQuizQuestion = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 const deleteQuizQuestion = async (req, res) => {
   try {
     const response = await QuizQuestion.findByIdAndDelete(req.params.id);
@@ -156,55 +159,60 @@ const deleteQuizQuestion = async (req, res) => {
 };
 
 const createQuizTestCategory = async (req, res) => {
+  const image = req.files?.image
   try {
-    const response = new QuizTestCategory(req.body);
+    if (image) {
+      const imagePath = await UploadImage(image, "quizCategory");
+      req.body.image = imagePath;
+    }
 
+    const response = new QuizTestCategory(req.body);
     const saveresponse = await response.save();
-    res.status(201).json({
-      success: true,
-      data: saveresponse,
-      message: "category Created",
-    });
+    res.status(201).json({ success: true, data: saveresponse, message: "category Created", });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+
 const UpdateQuizTestCategory = async (req, res) => {
+  const image = req.files?.image
+
   try {
-    const response = await QuizTestCategory.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
+    const checkQuizCategory = await QuizTestCategory.findById(req.params.id)
+    if (image) {
+      let oldeImage = checkQuizCategory.image
+      req.body.image = await UploadImage(image, "quizCategory");
+      if (oldeImage) {
+        await deleteImgFromFolder(oldeImage, "quizCategory");
       }
-    );
+    }
+    const response = await QuizTestCategory.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true, });
     if (response) {
-      return res.status(200).json({
-        success: true,
-        data: response,
-        message: "Category Updated",
-      });
+      return res.status(200).json({ success: true, data: response, message: "Category Updated", });
     } else {
-      return res
-        .status(404)
-        .json({ success: false, message: "Category not found" });
+      return res.status(404).json({ success: false, message: "Category not found" });
     }
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 const getAllQuizTestCategory = async (req, res) => {
   try {
-    const response = await QuizTestCategory.find();
+    const response = await QuizTestCategory.find().sort({ createdAt: -1 });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 const deleteQuizTestCategory = async (req, res) => {
   try {
     const response = await QuizTestCategory.findByIdAndDelete(req.params.id);
+    if (response.image) {
+      await deleteImgFromFolder(response.image, "quizCategory");
+    }
     if (response) {
       res.status(200).json({ success: true, message: " Category deleted" });
     } else {

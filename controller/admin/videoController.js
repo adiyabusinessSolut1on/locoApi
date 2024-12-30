@@ -1,5 +1,7 @@
 const videCategory = require("../../model/videocategoryModel");
 const Video = require("../../model/videoModel");
+const { UploadImage } = require("../../utils/imageUpload");
+const { deleteImgFromFolder } = require("../../utils/removeImages");
 
 const createVideoCategory = async (req, res) => {
   try {
@@ -62,17 +64,40 @@ const deleteVideoCategory = async (req, res) => {
 };
 
 const UploadVideo = async (req, res) => {
-  console.log("req.body: ", req.body);
-  console.log("req.files: ", req.files);
+
+  const category = req.body.category;
+  const title = req.body?.title;
+  const slug = req.body?.slug;
+  const tags = req.body?.tags;
+  const description = req.body?.description;
+  const isYoutube = req.body?.isYoutube;
+
+  const thumnail = req.files?.thumnail
+
+  const video = req.files?.url
+
+  const tagsArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
+
 
   try {
-    /* const response = await Video.create(req.body);
-    if (response) {
-      res.status(201).json({ success: true, data: response, message: "Video Uploaded" });
+    const result = new Video({ title, slug, tags: tagsArray, description, isYoutube, category })
+    if (thumnail) {
+      const imageUrl = await UploadImage(thumnail, 'uploadThumbnail');
+      result.thumnail = imageUrl
+    }
+    if (isYoutube == 'true') {
+      result.url = req.body?.url
     } else {
-      res.status(400).json({ success: false, message: "Video not Uploaded" });
-    } */
-    res.status(400).json({ success: false, message: "Video not Uploaded" });
+      if (video) {
+        const videoName = await UploadImage(video, "uploadVideo")
+        result.url = videoName
+      }
+    }
+    const savedVideo = await result.save();
+    if (savedVideo) {
+      return res.status(200).json({ success: true, data: savedVideo, message: "Video saved successfully." })
+    }
+    return res.status(400).json({ success: false, message: "Video not saved" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -91,9 +116,7 @@ const GetVideoByCategory = async (req, res) => {
   const { category } = req.params;
   try {
     if (!category)
-      return res
-        .status(403)
-        .json({ success: false, message: "Video not found" });
+      return res.status(403).json({ success: false, message: "Video not found" });
     const response = await Video.find({ category: category });
 
     res.status(200).json({ success: true, data: response });
@@ -118,33 +141,89 @@ const GetVideoById = async (req, res) => {
 
 const UpdateVideo = async (req, res) => {
   const { id } = req.params;
+
+  // console.log("req.body: ", req.body);
+  // console.log("req.files: ", req.files);
+
+
+  const category = req.body.category;
+  const title = req.body?.title;
+  const slug = req.body?.slug;
+  const tags = req.body?.tags
+  const description = req.body?.description;
+  const isYoutube = req.body?.isYoutube;
+
+  const thumnail = req.files?.thumnail
+
+  const video = req.files?.url
+  const tagsArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
+
   try {
-    const response = await Video.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!response) {
-      res.status(404).json({ success: false, message: "Video not found" });
-    } else {
-      res
-        .status(203)
-        .json({ success: true, data: response, message: "Video updated" });
+
+    const result = await Video.findById(id)
+
+    
+    if (title) result.title = title;
+    if (slug) result.slug = slug;
+    if (tagsArray) result.tags = tagsArray;
+    if (description) result.description = description;
+    if (isYoutube) result.isYoutube = isYoutube;
+    if (category) result.category = category;
+
+    if (thumnail) {
+      let oldImage = result.thumnail
+      const imageUrl = await UploadImage(thumnail, 'uploadThumbnail');
+      result.thumnail = imageUrl
+      if (oldImage) {
+        await deleteImgFromFolder(oldImage, 'uploadThumbnail');
+      }
     }
+    if (isYoutube == 'true') {
+      result.url = req.body?.url
+    } else {
+      if (video) {
+        let oldVideo
+        if (result?.isYoutube == 'true') {
+          oldVideo = result.url
+        }
+        const videoName = await UploadImage(video, "uploadVideo")
+        result.url = videoName
+        if (oldVideo) {
+          await deleteImgFromFolder(oldVideo, 'uploadVideo');
+        }
+      }
+    }
+
+    const savedVideo = await result.save();
+    if (savedVideo) {
+      return res.status(200).json({ success: true, data: savedVideo, message: "Video updated successfully." })
+    }
+    return res.status(400).json({ success: false, message: "Failed to update video" });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 const deleteVideo = async (req, res) => {
+
   try {
     const response = await Video.findByIdAndDelete(req.params.id);
     if (response) {
-      res.status(200).json({ message: "Video deleted" });
+      if (response.thumnail) {
+        await deleteImgFromFolder(response.thumnail, 'uploadThumbnail');
+      }
+      if (response.isYoutube == false) {
+        if (response.url) {
+          await deleteImgFromFolder(response.url, 'uploadVideo');
+        }
+      }
+      return res.status(200).json({ success: true, message: "Video deleted" });
     } else {
-      res.status(404).json({ message: "video not found" });
+      return res.status(404).json({ success: false, message: "video not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 

@@ -47,6 +47,24 @@ exports.deleteImgFromFolder = async (fileName, type) => {
     if (type === 'importantLink') {
         removeprofileFilePath = path.join(__dirname, '..', "assets", "importantLink", fileName)
     }
+    if (type === 'uploadThumbnail') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "uploadThumbnail", fileName)
+    }
+    if (type === 'uploadVideo') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "uploadVideo", fileName)
+    }
+    if (type === 'userProfile') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "userProfile", fileName)
+    }
+    if (type === 'sponsorVideo') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "sponsorVideo", fileName)
+    }
+    if (type === 'sponsorImage') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "sponsorImage", fileName)
+    }
+    if (type === 'quizCategory') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "quizCategory", fileName)
+    }
 
     // console.log("removeProfileFilePath: ", removeprofileFilePath);
     fs.unlink(removeprofileFilePath, (err) => {
