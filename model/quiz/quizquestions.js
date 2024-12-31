@@ -4,19 +4,19 @@ const questionSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required:true
+      required: true
     },
 
     options: [
       {
         type: String,
-        required:true
+        required: true
       },
     ],
 
     predicted_result: {
       type: String,
-      required:true
+      required: true
     },
     actualresult: {
       type: String,
@@ -27,10 +27,7 @@ const questionSchema = new mongoose.Schema(
     answer_description: {
       type: String,
     },
-  },
-  {
-    timestamps: true,
-  }
+  }, { timestamps: true, }
 );
 
 const Question = mongoose.model("quiz_question", questionSchema);

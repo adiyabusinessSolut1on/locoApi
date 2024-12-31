@@ -73,36 +73,32 @@ const deleteQuiz = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 const CreateQuizQuestions = async (req, res) => {
   const { quizId } = req.params;
 
   try {
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Quiz Not Found" });
+      return res.status(404).json({ success: false, message: "Quiz Not Found" });
     }
 
     const question = await QuizQuestion.create(req.body);
     if (!question) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Quiz Question not Created" });
+      return res.status(400).json({ success: false, message: "Quiz Question not Created" });
     }
 
     quiz.questions.push(question._id);
     await quiz.save();
 
-    res.status(201).json({
-      success: true,
-      data: question,
-      message: "Quiz Question Created",
-    });
+    res.status(201).json({ success: true, data: question, message: "Quiz Question Created", });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 const getSingleQuizQuestions = async (req, res) => {
   const { id } = req.params;
 

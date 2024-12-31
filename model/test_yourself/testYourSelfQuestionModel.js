@@ -6,18 +6,20 @@ const TestYourSelfquestionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    image: [
+    image: {
+      type: String,
+    },
+    /* image: [
       {
         type: String,
       },
-    ],
+    ], */
     options: [
       {
         type: String,
-        required: true,
+        // required: true,
       },
     ],
-
     predicted_result: {
       type: String,
       required: true,
@@ -31,10 +33,7 @@ const TestYourSelfquestionSchema = new mongoose.Schema(
     answer_description: {
       type: String,
     },
-  },
-  {
-    timestamps: true,
-  }
+  }, { timestamps: true, }
 );
 
 const TestYourSelfQuestion = mongoose.model("test_yourself_question", TestYourSelfquestionSchema);

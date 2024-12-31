@@ -65,6 +65,12 @@ exports.deleteImgFromFolder = async (fileName, type) => {
     if (type === 'quizCategory') {
         removeprofileFilePath = path.join(__dirname, '..', "assets", "quizCategory", fileName)
     }
+    if (type === 'quizQuestions') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "quizQuestions", fileName)
+    }
+    if (type === 'testYourSelf') {
+        removeprofileFilePath = path.join(__dirname, '..', "assets", "testYourSelf", fileName)
+    }
 
     // console.log("removeProfileFilePath: ", removeprofileFilePath);
     fs.unlink(removeprofileFilePath, (err) => {
