@@ -33,8 +33,7 @@ const mutualPostrModel = new mongoose.Schema(
     wanteddivision: {
       type: String
     },
-  },
-  { timestamps: true }
+  }, { timestamps: true }
 );
 
 const Mutual = mongoose.model("mutual", mutualPostrModel);
