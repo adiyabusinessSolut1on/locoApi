@@ -57,8 +57,7 @@ const DailyTadkModelSchema = new mongoose.Schema(
         }
       },
     ],
-  },
-  { timestamps: true, }
+  }, { timestamps: true, }
 );
 
 const DailyTask = mongoose.model("dailytask", DailyTadkModelSchema);
