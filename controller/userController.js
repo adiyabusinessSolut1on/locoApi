@@ -115,6 +115,7 @@ const UserForgotPassword = async (req, res) => {
   }
 }
 
+
 const verifyOtp = async (req, res) => {
   const mobile = req.body?.mobile
   const otp = req.body?.otp
@@ -131,6 +132,7 @@ const verifyOtp = async (req, res) => {
     res.status(500).json({ success: false, message: error.message, });
   }
 }
+
 
 const deletePost = async (req, res) => {
   const { id } = req.params;

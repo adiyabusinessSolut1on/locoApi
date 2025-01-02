@@ -9,6 +9,7 @@ const comment = new mongoose.Schema({
     ref: "user",
   }
 })
+
 const postModel = new mongoose.Schema(
   {
     user: {
@@ -34,11 +35,10 @@ const postModel = new mongoose.Schema(
       type: Number,
     },
     comments: [comment],
-  },
-  {
-    timestamps: true,
-  }
+  }, { timestamps: true, }
 );
+
+// marge image and video in one array
 
 const Post = mongoose.model("post", postModel);
 module.exports = Post;
