@@ -19,10 +19,7 @@ const ImportantLinks = new mongoose.Schema(
       type: Boolean,
       default: false,
     }
-  },
-  {
-    timestamps: true,
-  }
+  }, { timestamps: true, }
 );
 
 const ImpLinks = mongoose.model("importantlinks", ImportantLinks);
