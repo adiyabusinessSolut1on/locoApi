@@ -9,15 +9,9 @@ const TestYourSelfquestionSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    /* image: [
-      {
-        type: String,
-      },
-    ], */
     options: [
       {
         type: String,
-        // required: true,
       },
     ],
     predicted_result: {
