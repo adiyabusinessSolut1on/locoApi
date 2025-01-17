@@ -27,7 +27,7 @@ const UserRegister = async (req, res) => {
     // console.log("user: ", user);
 
     if (user) {
-      return res.status(409).json({ success: false, message: "User already exists! Please check mobile number of email id", });
+      return res.status(400).json({ success: false, message: "User already exists! Please check mobile number of email id", });
     }
 
     // console.log("user: ", user);

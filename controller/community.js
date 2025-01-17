@@ -26,7 +26,7 @@ exports.getUserCommunity = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        const result = await Community.find({ userId: id })
+        const result = await Community.find({ userId: id }).populate("media").populate({ path: "userId", select: "name email image" })
         if (!result) {
             return res.status(404).json({ success: false, message: "Community not found." });
         }
@@ -196,6 +196,11 @@ exports.getAllCommunityTesting = async (req, res) => {
 
 
 exports.addCommunity = async (req, res) => {
+    // console.log("============================== addCommunity ===============================");
+
+    // console.log("req.body: ", req.body);
+    // console.log("req.files: ", req.files);
+
 
     const content = req.body?.content
 
@@ -354,10 +359,16 @@ exports.updateMediaCommunity = async (req, res) => {
 }
 
 exports.deleteCommunity = async (req, res) => {
-    const id = req.params?.id
-    const userId = req.payload?._id
+    // console.log("================================ delete community ================================");
+
+    const id = req.params?.id //community id
+    const userId = req.userId
+
+
+
     try {
-        const checkCommunity = await Community.findOne({ _id: id, communityId: userId })
+        const checkCommunity = await Community.findOne({ _id: id, userId: userId })
+
         if (!checkCommunity) {
             return res.status(404).json({ success: false, message: "Community not found" });
         }
@@ -370,6 +381,8 @@ exports.deleteCommunity = async (req, res) => {
             await Media.deleteMany({ _id: { $in: mediaIds } })
         }
         const result = await Community.findByIdAndDelete(id)
+        // console.log("result: ", result);
+
         if (result) {
             return res.status(200).json({ message: "Community deleted successfully", success: true, data: result });
         }

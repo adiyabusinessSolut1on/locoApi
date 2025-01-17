@@ -78,6 +78,7 @@ const getBlogsByMainCategory = async (req, res) => {
   }
 };
 const searcBlog = async (req, res) => {
+
   try {
     const searchTerm = req.query.q;
     const menus = await Blog.find({ $or: [{ title: { $regex: searchTerm, $options: "i" } }], });
