@@ -90,16 +90,6 @@ exports.getAllCommunity = async (req, res) => {
         }
 
         // Fetch posts from followed users
-        // const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" }).populate({ path: "comments", select: "-__v", populate: { path: "replies", populate: { path: "userId", select: "name image" } }, populate: { path: "userId", select: "name image" } }).populate({ path: "userId", select: "-otp -fcmToken -quiz -test_yourself -daily_task -notVisibleUser -following -liekdCommunity -savedCommunity -followers -password -savePosts -likedPosts -role -isVerify -__v" })
-        /*  const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 })
-             .populate({ path: "media", select: "-communityId -userId -__v" })
-             .populate({
-                 path: "comments", select: "-__v",
-                 populate: [
-                     { path: "replies", populate: { path: "userId", select: "name image email mobile" } },
-                     { path: "userId", select: "name image" }
-                 ]
-             }).populate({ path: "userId", select: "name image email mobile" }); */
         const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
             .populate({
                 path: "comments",

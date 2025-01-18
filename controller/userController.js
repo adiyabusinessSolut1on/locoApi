@@ -17,6 +17,7 @@ const Media = require("../model/Media");
 const { UploadImage } = require("../utils/imageUpload");
 const path = require('path');
 const { deleteImgFromFolder } = require("../utils/removeImages");
+const Community = require("../model/Community");
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
@@ -78,10 +79,11 @@ const UserLogin = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("-password, -savePosts, -likedPosts").select("-otp").select("-password");
+    const postCount = await Community.countDocuments({ userId: req.userId });
     if (!user) {
       return res.status(403).json({ success: false, message: "user Not Found" });
     }
-    return res.status(200).json({ success: true, data: user });
+    return res.status(200).json({ success: true, data: user, postCount });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message, });
   }
@@ -98,8 +100,9 @@ const userInfo = async (req, res) => {
     let follower = result.followers.length
     let following = result.following.length
     let likedCommunities = result.likedCommunities.length
+    const postCount = await Community.countDocuments({ userId: id });
     if (result) {
-      return res.status(200).json({ success: true, data: result, following, follower, likedCommunities });
+      return res.status(200).json({ success: true, data: result, following, follower, likedCommunities, postCount });
     }
     return res.status(404).json({ success: false, message: "User Not Found" });
   } catch (error) {
