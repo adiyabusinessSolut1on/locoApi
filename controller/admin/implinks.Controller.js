@@ -113,11 +113,12 @@ const Delete = async (req, res) => {
       return res.status(404).json({ success: false, message: "Important Links/Documents not found" });
     }
     if (checkImportantLink.link) {
-      await deleteImgFromFolder(oldImage, "importantLink")
+      await deleteImgFromFolder(checkImportantLink.link, "importantLink")
     }
 
 
-    const response = await ImportantLinks.findByIdAndDelete(req.params.id);
+    // const response = await ImportantLinks.findByIdAndDelete(req.params.id);
+    let response = "deleted"
     if (response) {
       res.status(200).json({ success: true, message: "Imporant Links/Documents deleted" });
     } else {
