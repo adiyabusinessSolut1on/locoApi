@@ -39,7 +39,7 @@ const UserRegister = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ success: true, message: "User created successfully", data: newUser, });
+    res.status(201).json({ success: true, message: "User register successfully", data: newUser, });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message, });
   }
