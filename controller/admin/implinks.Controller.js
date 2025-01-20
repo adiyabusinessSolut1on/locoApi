@@ -117,8 +117,8 @@ const Delete = async (req, res) => {
     }
 
 
-    // const response = await ImportantLinks.findByIdAndDelete(req.params.id);
-    let response = "deleted"
+    const response = await ImportantLinks.findByIdAndDelete(req.params.id);
+    // let response = "deleted"
     if (response) {
       res.status(200).json({ success: true, message: "Imporant Links/Documents deleted" });
     } else {
