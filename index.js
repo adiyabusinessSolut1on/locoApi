@@ -37,6 +37,7 @@ const notifyRouter = require("./route/notification.js");
 const commuRouter = require("./route/community.js");
 const commentRouter = require("./route/comments.js");
 const { isAdmin } = require("./middleware/rolebaseuserValidate.js");
+const bannerRouter = require("./route/banner.js");
 const checkTimeLimits = async () => {
   const now = new Date();
   await Poll.updateMany(
@@ -91,12 +92,14 @@ app.use("/api/admin", sponsorRoute);
 app.use("/api/admin", quizRoute);
 app.use("/api/admin", testYourSelfRoute);
 app.use("/api/admin", DailyTaskRoute);
+app.use("/api/admin", bannerRouter);
 app.use("/api/user/blog", Blog);
 app.use("/api/admin", reportRoute);
 app.use("/api/admin", settingRouter);
 app.use('/api/notification', notifyRouter)
 app.use('/api/community', commuRouter)
 app.use('/api/comments', commentRouter)
+// app.use('/api/banners', bannerRouter)
 
 
 // downloading and uploading with zip function ====================================

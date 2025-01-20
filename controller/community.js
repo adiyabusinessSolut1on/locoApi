@@ -90,7 +90,7 @@ exports.getAllCommunity = async (req, res) => {
         }
 
         // Fetch posts from followed users
-        const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
+        /* const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
             .populate({
                 path: "comments",
                 options: { sort: { createdAt: -1 } }, // Sort comments by creation date
@@ -109,12 +109,13 @@ exports.getAllCommunity = async (req, res) => {
                     },
                     { path: "userId", select: "name image" }
                 ]
-            }).populate({ path: "userId", select: "name image email mobile" });
+            }).populate({ path: "userId", select: "name image email mobile" }); */
 
 
         // Fetch posts from other users
         // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" }).populate({ path: "comments", select: "-__v", populate: { path: "replies", populate: { path: "userId", select: "name image" } }, populate: { path: "userId", select: "name image" } }).populate({ path: "userId", select: "-otp -fcmToken -quiz -test_yourself -daily_task -notVisibleUser -following -liekdCommunity -savedCommunity -followers  -password -savePosts -likedPosts -role -isVerify -__v" })
-        const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
+        // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
+        const otherPosts = await Community.find({ user: { $nin: [userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
             .populate({
                 path: "comments", select: "-__v",
                 options: { sort: { createdAt: -1 } }, // Sort comments by creation date
@@ -136,12 +137,12 @@ exports.getAllCommunity = async (req, res) => {
         // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId, ...user?.notVisibleUser] } }).sort({ createdAt: -1 }).limit(limit);
 
         // Combine and shuffle the posts
-        const combinedPosts = shuffleArray([...followingPosts, ...otherPosts]);
+        // const combinedPosts = shuffleArray([...followingPosts, ...otherPosts]);
 
         // Limit to the required number of posts
         // const finalPosts = combinedPosts.slice(0, limit);
-        if (combinedPosts) {
-            return res.status(200).json({ success: true, data: combinedPosts });
+        if (otherPosts) {
+            return res.status(200).json({ success: true, data: otherPosts });
         }
         return res.status(404).json({ success: false, message: "Community not found." });
     } catch (error) {

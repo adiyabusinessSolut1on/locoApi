@@ -24,6 +24,12 @@ const UserRegister = async (req, res) => {
 
   // console.log("req.body: ", req.body);
   try {
+    if (mobile.toString().length !== 10) {
+      return res.status(400).json({ success: false, message: "Invalid Mobile Number", });
+    }
+    if (!/^\d{10}$/.test(mobile.toString())) {
+      return res.status(400).json({ success: false, message: "Invalid Mobile Number" });
+    }
     const user = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] });
     // console.log("user: ", user);
 
