@@ -102,6 +102,8 @@ exports.testNotification = async (req, res) => {
     const userId = req.body.id
     try {
         const checkUser = await User.findById(userId)
+        // console.log("checkUser: ", checkUser);
+
         if (checkUser) {
 
             /* const messageC = {
@@ -122,7 +124,7 @@ exports.testNotification = async (req, res) => {
                 return err
             }) */
             // (reciver, title, description, type, fcmToken, sender)   eZm3tz46T6GSyExmZrh1iT:APA91bFXeWIP39j6KvO5izJB4WynjL1EAzTKzoCM917YYIdyR2j3oRjmKfqJdYgP3G3HEyXM1SuM-mNrILGG_fpc0d6tqv788NVlcuvYE7yWSM3io9edi7g
-            sendMessage(checkUser?._id, "test title", "test description", "test", checkUser?.fcmToken,)
+            sendMessage(checkUser?._id, "test title", "test description", "test", checkUser?.fcmToken)
             return res.status(200).json({ message: "test notification sent to user", success: true })
         }
         return res.status(404).json({ message: "User not found", success: false })
