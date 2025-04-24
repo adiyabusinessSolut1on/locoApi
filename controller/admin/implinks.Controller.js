@@ -49,6 +49,22 @@ const getAll = async (req, res) => {
   }
 };
 
+const getAllPagination = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query; // Default to page 1, limit 10
+  try {
+    const response = await ImportantLinks.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(parseInt(limit)).lean();
+    const totalCount = await ImportantLinks.countDocuments(); // Total records
+    if (!response) {
+      return res.status(200).json({ success: false, message: "Important Links/Documents Not Found" });
+    }
+
+    return res.status(200).json({ data: response, currentPage: parseInt(page), totalPages: Math.ceil(totalCount / limit), totalRecords: totalCount, });
+    // return res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getSingle = async (req, res) => {
   const { id } = req.params
   try {
@@ -113,12 +129,11 @@ const Delete = async (req, res) => {
       return res.status(404).json({ success: false, message: "Important Links/Documents not found" });
     }
     if (checkImportantLink.link) {
-      await deleteImgFromFolder(checkImportantLink.link, "importantLink")
+      await deleteImgFromFolder(oldImage, "importantLink")
     }
 
 
     const response = await ImportantLinks.findByIdAndDelete(req.params.id);
-    // let response = "deleted"
     if (response) {
       res.status(200).json({ success: true, message: "Imporant Links/Documents deleted" });
     } else {
@@ -133,5 +148,6 @@ module.exports = {
   getAll,
   Update,
   Delete,
-  getSingle
+  getSingle,
+  getAllPagination,
 };

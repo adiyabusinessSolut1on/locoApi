@@ -7,7 +7,7 @@ const Post = require("../model/post");
 const reportPost = async (req, res) => {
   try {
     // console.log("================================= report post ====================================")
-    const { reportedUser, reportedPost, reason, description, awareness, blog } = req.body;
+    const { reportedUser, reportedPost, reason, description, awareness, blog, community } = req.body;
     // console.log("req.body: ", req.body);
 
     /*  console.log({
@@ -30,6 +30,7 @@ const reportPost = async (req, res) => {
       blog: blog,
       reason,
       description,
+      community,
     });
 
     await newReport.save();

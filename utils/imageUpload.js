@@ -264,7 +264,6 @@ exports.UploadImage = async (image, type) => {
         })
     }
 
-
     // banner
     if (type === 'banner') {
         const imagePath = path.join(__dirname, '..', "assets", "banner", imageName)

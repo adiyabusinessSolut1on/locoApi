@@ -18,18 +18,12 @@ const { UploadImage } = require("../utils/imageUpload");
 const path = require('path');
 const { deleteImgFromFolder } = require("../utils/removeImages");
 const Community = require("../model/Community");
+const mongoose = require("mongoose");
 
 const UserRegister = async (req, res) => {
   const { image, name, email, mobile, password } = req.body;
 
-  // console.log("req.body: ", req.body);
   try {
-    if (mobile.toString().length !== 10) {
-      return res.status(400).json({ success: false, message: "Invalid Mobile Number", });
-    }
-    if (!/^\d{10}$/.test(mobile.toString())) {
-      return res.status(400).json({ success: false, message: "Invalid Mobile Number" });
-    }
     const user = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] });
     // console.log("user: ", user);
 
@@ -53,10 +47,11 @@ const UserRegister = async (req, res) => {
 
 
 const UserLogin = async (req, res) => {
-  const { email, password, fcmToken } = req.body;
+  const { email, mobile, password, fcmToken } = req.body;
 
   try {
-    const user = await User.findOne({ email: email });
+    // const user = await User.findOne({ email: email });
+    const user = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] });
     // console.log("user: ", user);
 
     if (!user) {
@@ -97,18 +92,39 @@ const getUser = async (req, res) => {
 
 // getting user info by id
 const userInfo = async (req, res) => {
+  // this is is using from the app side to get the user profile details with following and followers
+  // dont touch any thing apart from this
   const id = req.params.id
   try {
     if (!id) {
       return res.status(400).json({ success: false, message: "Please provide a valid ID" });
     }
+
+
+    const currentUser = await User.findById(req?.userId)
+
+
     const result = await User.findById(id).select("-otp -password -quiz -test_yourself -daily_task -fcmToken -role -isVerify")
-    let follower = result.followers.length
-    let following = result.following.length
-    let likedCommunities = result.likedCommunities.length
+    // console.log("result: ", result);
+
+    let follower = result?.followers?.length
+    let following = result?.following?.length
+    let likedCommunities = result?.likedCommunities?.length
+    let alreadyFollowing
+    let alreadyBlocked
+
+    console.log("blocked: ", currentUser?.notVisibleUser);
+
+    if (currentUser?.notVisibleUser?.length) {
+      alreadyBlocked = currentUser.notVisibleUser.includes(id)
+    }
+
+    if (follower) {
+      alreadyFollowing = result.followers.includes(req?.userId)
+    }
     const postCount = await Community.countDocuments({ userId: id });
     if (result) {
-      return res.status(200).json({ success: true, data: result, following, follower, likedCommunities, postCount });
+      return res.status(200).json({ success: true, data: result, following, follower, likedCommunities, postCount, alreadyFollowing, alreadyBlocked });
     }
     return res.status(404).json({ success: false, message: "User Not Found" });
   } catch (error) {
@@ -120,6 +136,7 @@ const userInfo = async (req, res) => {
 const followOtherUser = async (req, res) => {
   const id = req.params?.id //other user id
   const userId = req.userId //current user id
+
 
   try {
     const checkOtherUser = await User.findById(id)
@@ -149,6 +166,7 @@ const followOtherUser = async (req, res) => {
 
     await checkCurrentUser.save()
     await checkOtherUser.save()
+
     await sendMessage(checkOtherUser._id, `${checkFollowing ? "" : "Congratulations! "} ${checkCurrentUser?.name} is now ${checkFollowing ? "unfollowing" : "following"} you.`, null, "community-follow", checkOtherUser?.fcmToken, userId, null, null)
 
     return res.status(200).json({ success: false, message: checkOtherUser.followers.includes(userId) ? "followed successfully" : "unfollowed successfully" });
@@ -159,13 +177,13 @@ const followOtherUser = async (req, res) => {
 }
 
 // bloking user by id ============================= lock user
-const blockAndUnblockUser = async (req, res) => {
+/* const blockAndUnblockUser = async (req, res) => {
   const userId = req.userId; // ID of the current user
   const blockUserId = req.params.id; // ID of the user to block
 
-  // console.log("======================================= blockUserPost ================================ ")
-  // console.log("req.params: ", req.params)
-  // console.log("req.userId: ", req.userId)
+  console.log("======================================= blockUserPost ================================ ")
+  console.log("req.params: ", req.params)
+  console.log("req.userId: ", req.userId)
   try {
     // Ensure the user to block exists
     const blockUserExists = await User.findById(blockUserId);
@@ -182,29 +200,81 @@ const blockAndUnblockUser = async (req, res) => {
     // Check if the user is already blocked
     const alreadyBlocked = user.notVisibleUser.includes(blockUserId);
     if (alreadyBlocked) {
-      checkCurrentUser.notVisibleUser.pull(id)
+      user.notVisibleUser.pull(blockUserId)
       // return res.status(200).json({ message: "User already blocked", success: true });
     }
 
     // Add the user to the blocked list
     user.notVisibleUser.push(blockUserId);
-    await user.save();
 
+    console.log("user: ", user);
+
+    await user.save();
+    console.log(" ====================== after ======================");
+
+    console.log("user: ", user);
     return res.status(200).json({ message: `User successfully ${alreadyBlocked ? "unblocked" : "blocked"}`, success: true });
   } catch (error) {
     console.error("Error blocking user:", error);
     return res.status(500).json({ message: "Internal server error", error });
   }
-}
+} */
+const blockAndUnblockUser = async (req, res) => {
+  const userId = req.userId; // ID of the current user
+  const blockUserId = req.params.id; // ID of the user to block/unblock
+
+  // console.log("======================================= blockUserPost ================================");
+  // console.log("req.params: ", req.params);
+  // console.log("req.userId: ", req.userId);
+
+  try {
+    // Ensure the user to block exists
+    const blockUserExists = await User.findById(blockUserId);
+    if (!blockUserExists) {
+      return res.status(404).json({ message: "User to block not found", success: false });
+    }
+
+    // Find the current user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(403).json({ message: "Unauthorized access!", success: false });
+    }
+
+    // Check if the user is already blocked
+    const alreadyBlocked = user.notVisibleUser.includes(blockUserId);
+
+    if (alreadyBlocked) {
+      // If user is already blocked, unblock them
+      user.notVisibleUser = user.notVisibleUser.filter(id => id.toString() !== blockUserId);
+    } else {
+      // If user is not blocked, block them
+      user.notVisibleUser.push(blockUserId);
+    }
+
+    await user.save();
+
+    return res.status(200).json({ message: `User successfully ${alreadyBlocked ? "unblocked" : "blocked"}`, success: true });
+
+  } catch (error) {
+    console.error("Error blocking/unblocking user:", error);
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 
 const getAllFollwingUser = async (req, res) => {
+
   const userId = req.userId
   try {
     const checkUser = await User.findById(userId);
+
     if (!checkUser) {
       return res.status(404).json({ success: false, message: "User Not Found" });
     }
+    // console.log("following user: ", checkUser?.following);
+
     const followingUsers = await User.find({ _id: { $in: checkUser.following } }).select("-password -savePosts -likedPosts -otp -password -quiz -test_yourself -daily_task -fcmToken -role -isVerify");
+
     if (!followingUsers) {
       return res.status(404).json({ success: false, message: "No following users found" });
     }
@@ -217,11 +287,13 @@ const getAllFollwingUser = async (req, res) => {
 
 const getAllFollowerUser = async (req, res) => {
   const userId = req.userId
+
   try {
     const checkUser = await User.findById(userId);
     if (!checkUser) {
       return res.status(404).json({ success: false, message: "User Not Found" });
     }
+    // console.log("followers user: ", checkUser?.followers);
     const followingUsers = await User.find({ _id: { $in: checkUser.followers } }).select("-password -savePosts -likedPosts -otp -password -quiz -test_yourself -daily_task -fcmToken -role -isVerify");
     if (!followingUsers) {
       return res.status(404).json({ success: false, message: "No followers users found" });
@@ -573,10 +645,24 @@ const userMutualPost = async (req, res) => {
   }
 };
 
+const getSingleMutualPostById = async (req, res) => {
+  const id = req.params?.id
+  try {
+    const response = await Mutual.findById(id).populate('userId', '-password -quiz -savePosts -test_yourself -fcmToken -isVerify -likedPosts -daily_task -comments -notVisibleUser -followers -following -liekdCommunity -savedCommunity -likedCommunities -savedCommunities -otp');  // Exclude specific fields
+
+    if (response) {
+      return res.status(200).json({ success: true, message: "get post Successfully", data: response, });
+    }
+    return res.status(404).json({ success: false, message: "Data Not Found" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: err.message, });
+  }
+}
+
 const getAllFormPost = async (req, res) => {
   try {
     // const response = await Mutual.find().populate('userId');
-    const response = await Mutual.find().populate('userId', '-password -quiz -savePosts -test_yourself -fcmToken -isVerify -likedPosts -daily_task'); // Exclude specific fields
+    const response = await Mutual.find().populate('userId', '-password -quiz -savePosts -test_yourself -fcmToken -isVerify -likedPosts -daily_task -comments -notVisibleUser -followers -following -liekdCommunity -savedCommunity -likedCommunities -savedCommunities -otp'); // Exclude specific fields
 
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
@@ -692,7 +778,7 @@ const CommentPost = async (req, res) => {
 const getAllFormPostByUserId = async (req, res) => {
   const userId = req.userId;
   try {
-    const response = await Mutual.find({ userId: userId }).populate('userId');
+    const response = await Mutual.find({ userId: userId }).populate('userId', '-password -quiz -savePosts -test_yourself -fcmToken -isVerify -likedPosts -daily_task -comments -notVisibleUser -followers -following -liekdCommunity -savedCommunity -likedCommunities -savedCommunities -otp'); // Exclude specific fields
 
     if (!response.length > 0) {
       return res.status(404).json({ success: false, message: "Data Not Found" });
@@ -830,6 +916,67 @@ const getAllQuiz = async (req, res) => {
   }
 };
 
+const getAllQuizPagination = async (req, res) => {
+  try {
+    const { limit = 10 } = req.query; // Default limit: 5 quizzes
+
+    const response = await Quiz.aggregate([
+      { $sample: { size: parseInt(limit) } }, // Randomly select `limit` number of quizzes
+      { $lookup: { from: "questions", localField: "questions", foreignField: "_id", as: "questions" } } // Populate questions
+    ]);
+
+    // console.log("response: ", response);
+
+    if (response.length === 0) {
+      return res.status(200).json({ success: false, message: "Quiz Not Found" });
+    }
+
+    res.status(200).json({ success: true, data: response });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getRandomOneQuiz = async (req, res) => {
+  try {
+    // const result = await Quiz.findOne().populate("questions")
+    const result = await Quiz.aggregate([
+      { $match: {} }, // Match all documents
+      { $addFields: { randomSort: { $rand: {} } } }, // Add random value
+      { $sort: { randomSort: 1 } }, // Sort by random value
+      { $limit: 1 }, // Pick one quiz
+      {
+        $lookup: {
+          from: "quiz_questions", // Ensure the correct collection name
+          localField: "questions",
+          foreignField: "_id",
+          as: "questions"
+        }
+      }
+    ]);
+    // console.log("result: ", result);
+    /*     const result = await Quiz.aggregate([
+          { $sample: { size: 1 } }, // Fetch a single random quiz
+          {
+            $lookup: {
+              from: "quiz_questions", // Ensure the correct collection name (pluralized by Mongoose)
+              localField: "questions",
+              foreignField: "_id",
+              as: "questions"
+            }
+          }
+        ]); */
+
+    if (result) {
+      return res.status(200).json({ success: true, data: result });
+    }
+    return res.status(200).json({ success: false, message: "Quiz Not Found" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+
 const getSingleQuiz = async (req, res) => {
   const { id } = req.params;
   try {
@@ -871,17 +1018,21 @@ const getSingleTest = async (req, res) => {
 const UpdateAnswer = async (req, res) => {
   const { id } = req.params;
   const { answer } = req.body;
+
+  console.log("req.body: ", req.body);
+  console.log("id: ", id);
+
   try {
     const question = await QuizQuestion.findById(id);
-
     if (!question) {
       return res.status(404).json({ success: false, message: "Question not found" });
     }
 
     question.actualresult = answer;
     question.isTrue = answer === question.predicted_result;
-
     await question.save();
+
+    console.log("question: ", question);
 
     res.status(200).json({ success: true, data: question, message: "Answer submitted successfully", });
   } catch (error) {
@@ -976,6 +1127,33 @@ const userComplteteQuiz = async (req, res) => {
     res.status(500).json({ success: false, message: error.message, });
   }
 };
+// ================================ get random user ================================
+const getRandomUser = async (req, res) => {
+  // console.log(" ======================= get random user =================");
+
+  try {
+    // const result = await User.find().limit(20).select("-password -role -fcmToken -quiz -test_yourself -daily_task -otp -isVerify")
+    const result = await User.aggregate([
+      { $sample: { size: 12 } }, // Get 20 random documents
+      {
+        $project: {
+          password: 0,
+          role: 0,
+          fcmToken: 0,
+          quiz: 0,
+          test_yourself: 0,
+          daily_task: 0,
+          otp: 0,
+          isVerify: 0
+        }
+      }
+    ]);
+    return res.status(200).json({ message: "Ok", success: true, data: result })
+  } catch (error) {
+    console.log("error on getRandomUser", error);
+    res.status(500).json({ success: false, message: error.message, });
+  }
+}
 
 
 const userComplteteTest = async (req, res) => {
@@ -1086,4 +1264,8 @@ module.exports = {
   getAllFollwingUser,
   getAllFollowerUser,
   blockedUser,
+  getRandomUser,
+  getAllQuizPagination,
+  getRandomOneQuiz,
+  getSingleMutualPostById,
 };

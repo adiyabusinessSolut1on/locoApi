@@ -90,7 +90,7 @@ exports.getAllCommunity = async (req, res) => {
         }
 
         // Fetch posts from followed users
-        /* const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
+        const followingPosts = await Community.find({ user: { $in: user?.following } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
             .populate({
                 path: "comments",
                 options: { sort: { createdAt: -1 } }, // Sort comments by creation date
@@ -109,13 +109,12 @@ exports.getAllCommunity = async (req, res) => {
                     },
                     { path: "userId", select: "name image" }
                 ]
-            }).populate({ path: "userId", select: "name image email mobile" }); */
+            }).populate({ path: "userId", select: "name image email mobile" });
 
 
         // Fetch posts from other users
         // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" }).populate({ path: "comments", select: "-__v", populate: { path: "replies", populate: { path: "userId", select: "name image" } }, populate: { path: "userId", select: "name image" } }).populate({ path: "userId", select: "-otp -fcmToken -quiz -test_yourself -daily_task -notVisibleUser -following -liekdCommunity -savedCommunity -followers  -password -savePosts -likedPosts -role -isVerify -__v" })
-        // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
-        const otherPosts = await Community.find({ user: { $nin: [userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
+        const otherPosts = await Community.find({ user: { $nin: [...user.following, userId] } }).sort({ createdAt: -1 }).populate({ path: "media", select: "-communityId -userId -__v" })
             .populate({
                 path: "comments", select: "-__v",
                 options: { sort: { createdAt: -1 } }, // Sort comments by creation date
@@ -137,12 +136,12 @@ exports.getAllCommunity = async (req, res) => {
         // const otherPosts = await Community.find({ user: { $nin: [...user.following, userId, ...user?.notVisibleUser] } }).sort({ createdAt: -1 }).limit(limit);
 
         // Combine and shuffle the posts
-        // const combinedPosts = shuffleArray([...followingPosts, ...otherPosts]);
+        const combinedPosts = shuffleArray([...followingPosts, ...otherPosts]);
 
         // Limit to the required number of posts
         // const finalPosts = combinedPosts.slice(0, limit);
-        if (otherPosts) {
-            return res.status(200).json({ success: true, data: otherPosts });
+        if (combinedPosts) {
+            return res.status(200).json({ success: true, data: combinedPosts });
         }
         return res.status(404).json({ success: false, message: "Community not found." });
     } catch (error) {
@@ -150,6 +149,27 @@ exports.getAllCommunity = async (req, res) => {
         return res.status(500).json({ message: error.message, error: error, success: false });
     }
 }
+
+exports.getCommunityPagination = async (req, res) => {
+    // const userId = req.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    try {
+        // Get total count
+        const totalCount = await Community.countDocuments();
+
+        // Fetch paginated data
+        const communities = await Community.find().populate("media").populate({ path: "userId", select: "name email image" }).skip(skip).limit(limit).sort({ createdAt: -1 }); // Sorting (optional)
+
+        return res.status(200).json({ success: true, data: communities, currentPage: page, totalPages: Math.ceil(totalCount / limit), totalCount });
+    } catch (error) {
+        console.error("Error in getCommunityPagination:", error);
+        return res.status(500).json({ message: error.message, error, success: false });
+    }
+};
+
 
 exports.getAllCommunityTesting = async (req, res) => {
     const userId = req.userId;
@@ -187,12 +207,6 @@ exports.getAllCommunityTesting = async (req, res) => {
 
 
 exports.addCommunity = async (req, res) => {
-    // console.log("============================== addCommunity ===============================");
-
-    // console.log("req.body: ", req.body);
-    // console.log("req.files: ", req.files);
-
-
     const content = req.body?.content
 
     const files = req.files
@@ -205,24 +219,6 @@ exports.addCommunity = async (req, res) => {
         const checkUser = await User.findById(req.userId)
         const post = new Community({ content, userId: req.userId })
 
-        // console.log("mediaIds: ", mediaIds);
-
-        // Handle image uploads
-        /* if (files?.images) {
-            const images = Array.isArray(files.images) ? files.images : [files.images];
-            for (const image of images) {
-                const uploaded = await UploadImage(image, 'post');
-                // console.log("uploaded image: ", uploaded);
-                if (image == 0) {
-                    firstImgName = uploaded;
-                }
-                if (uploaded) {
-                    const media = new Media({ name: uploaded, type: 'image', communityId: post?._id, userId: req.userId });
-                    await media.save();
-                    mediaIds.push(media._id);
-                }
-            }
-        } */
         if (files?.images) {
             const images = Array.isArray(files.images) ? files.images : [files.images];
             for (let i = 0; i < images.length; i++) {
@@ -298,6 +294,10 @@ exports.updateMediaCommunity = async (req, res) => {
     const mediaId = req.body?.mediaId //media id to be updated
     const media = req.files?.media
     const type = req.body?.type
+    const content = req.body?.content
+
+    console.log("req.body: ", req.body);
+    console.log("req.files: ", req.files);
 
 
     try {
@@ -305,12 +305,17 @@ exports.updateMediaCommunity = async (req, res) => {
         if (!checkCommunity) {
             return res.status(404).json({ success: false, message: "Community not found" });
         }
+        if (content) checkCommunity.content = content
         const checkMedia = await Media.findById(mediaId)
         if (!checkMedia) {
             return res.status(404).json({ success: false, message: "Media not found" });
         }
         if (media) {
+            console.log("media: ", media);
+
             if (checkMedia.type == 'image') {
+                console.log("checkImage: ");
+
                 let oldImage = checkMedia.name
 
                 if (type == 'image') {
@@ -325,6 +330,8 @@ exports.updateMediaCommunity = async (req, res) => {
                 await deleteImgFromFolder(oldImage, "post")
             }
             if (checkMedia.type == 'video') {
+                console.log("video type");
+
                 let oldVideo = checkMedia.name
                 if (type == 'image') {
                     // for image upload
@@ -345,6 +352,96 @@ exports.updateMediaCommunity = async (req, res) => {
         return res.status(400).json({ message: "Failed to update media", success: false });
     } catch (error) {
         console.log("error on updateMediaCommunity: ", error);
+        return res.status(500).json({ message: error.message, error: error, success: false });
+    }
+}
+
+exports.addMedia = async (req, res) => {
+    const id = req.params?.id //community id
+    const content = req.body?.content
+    const files = req.files
+
+    let mediaIds = []
+
+    let firstImgName
+
+    try {
+        const checkUser = await User.findById(req.userId)
+        const post = await Community.findById(id)
+
+        if (files?.images) {
+            const images = Array.isArray(files.images) ? files.images : [files.images];
+            for (let i = 0; i < images.length; i++) {
+                const image = images[i];
+                const uploaded = await UploadImage(image, 'post');
+                if (i === 0 && uploaded) { // Check if this is the first image and it's uploaded
+                    firstImgName = uploaded;
+                }
+                if (uploaded) {
+                    const media = new Media({ name: uploaded, type: 'image', communityId: post?._id, userId: req.userId });
+                    await media.save();
+                    mediaIds.push(media._id);
+                }
+            }
+            // console.log("First image name:", firstImgName); // You can log or use the first image name as needed
+        }
+
+
+        // Handle video uploads
+        if (files?.videos) {
+            const videos = Array.isArray(files.videos) ? files.videos : [files.videos];
+            for (const video of videos) {
+                const uploaded = await UploadImage(video, 'post-vidoe');
+                // console.log("uploaded video: ", uploaded);
+                if (uploaded) {
+                    // const videoPath = path.join(__dirname, '..', "assets", "vidoe", uploaded)
+
+                    const media = new Media({ name: uploaded, type: 'video', communityId: post?._id, userId: req.userId });
+                    await media.save();
+                    mediaIds.push(media._id);
+                }
+            }
+        }
+        if (content) post.content = content;
+
+        post.media = [...post.media, ...mediaIds];
+        const result = await post.save()
+        sendNotifcationToAllUsers(null, null, "community", req.userId, firstImgName, null)
+        if (result) {
+            return res.status(201).json({ message: "Post created successfully", success: true, data: result });
+        }
+        return res.status(400).json({ message: "Failed to Post community", success: false });
+    } catch (error) {
+        console.log("error on addMedia: ", error);
+        return res.status(500).json({ message: error.message, error: error, success: false });
+    }
+}
+
+exports.deleteMedia = async (req, res) => {
+    const id = req.params?.id
+    try {
+        const checkMedia = await Media.findById(id)
+        if (!checkMedia) {
+            return res.status(404).json({ success: false, message: "Media not found" });
+        }
+        const community = await Community.findById(checkMedia?.communityId)
+        if (checkMedia.type == 'image') {
+            const oldImage = checkMedia.name
+            await deleteImgFromFolder(oldImage, "post")
+        } else {
+            const oldVideo = checkMedia.name
+            await deleteImgFromFolder(oldVideo, "post-vidoe")
+        }
+        const result = await Media.findByIdAndDelete(id)
+        community.media = community.media.filter(id => id.toString() !== id);
+        await community.save()
+        if (result) {
+            return res.status(200).json({ message: "Media deleted successfully", success: true, data: result });
+        }
+        return res.status(400).json({ message: "Failed to delete media", success: false });
+
+    } catch (error) {
+        console.log("error on deleteMedia: ", error);
         return res.status(500).json({ message: error.message, error: error, success: false });
     }
 }

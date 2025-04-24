@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const rateLimit = require('express-rate-limit')
 const bodyParser = require("body-parser");
 const app = express();
 app.use(cors());
@@ -36,16 +37,26 @@ const settingRouter = require("./route/admin/setting.js");
 const notifyRouter = require("./route/notification.js");
 const commuRouter = require("./route/community.js");
 const commentRouter = require("./route/comments.js");
-const { isAdmin } = require("./middleware/rolebaseuserValidate.js");
-const bannerRouter = require("./route/banner.js");
+const bannerRouter = require("./route/admin/banner.js");
+const suggestionRouter = require("./route/suggestion.js");
+
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 50, // Limit each IP to 50 requests per `window` (here, per 15 minutes).
+  // standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+})
+
 const checkTimeLimits = async () => {
-  const now = new Date();
-  await Poll.updateMany(
-    { timelimit: { $lte: now }, isActive: true },
-    { $set: { isActive: false } }
-  );
-};
+  const now = new Date()
+  await Poll.updateMany({ timelimit: { $lte: now }, isActive: true }, { $set: { isActive: false } })
+}
+
+
 setInterval(checkTimeLimits, 60 * 1000);
+
 
 const io = new Server(server, {
   cors: {
@@ -54,6 +65,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
 // app.use(cors({
 //   origin: 'http://localhost:5173',
 //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -61,6 +73,7 @@ const io = new Server(server, {
 //   allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
 // }));
 
+app.use(limiter)
 app.use(fileUpload());
 app.use(express.json());
 
@@ -99,7 +112,7 @@ app.use("/api/admin", settingRouter);
 app.use('/api/notification', notifyRouter)
 app.use('/api/community', commuRouter)
 app.use('/api/comments', commentRouter)
-// app.use('/api/banners', bannerRouter)
+app.use('/api/suggestion', suggestionRouter)
 
 
 // downloading and uploading with zip function ====================================

@@ -148,9 +148,8 @@ const UpdateTstQuestion = async (req, res) => {
 const deleteTestQuestion = async (req, res) => {
   try {
     const response = await TestYourSelfQuestion.findByIdAndDelete(req.params.id);
-    // const response = "ok"
 
-    if (response.image) {
+    if (image) {
       await deleteImgFromFolder(response.image, "testYourSelf") // Delete image from folder  // you need to create a function deleteImgFromFolder in utils/imageUpload.js file.  // it will take image name and folder name as parameters.  // after deleting image from folder, it will delete image from MongoDB collection.  // This is just a basic example.  // In a real-world application, you need to handle the error cases and make sure the image is deleted from both MongoDB and the folder.  // Also, you need to handle the case when the image does not exist in the folder.  // Make sure you have the necessary permissions and error handling in place.  // If you're using AWS S3, you can use their SDK to delete the image from the bucket.  // You can find more information in their documentation.  // And remember to update the image field in the TestYourSelfQuestion model to null after deleting the
     }
     if (response) {
