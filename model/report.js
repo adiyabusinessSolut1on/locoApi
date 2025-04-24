@@ -37,6 +37,10 @@ const reportSchema = new mongoose.Schema({
     enum: ["Pending", "Reviewed", "Resolved"],
     default: "Pending",
   },
+  community: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "community",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
