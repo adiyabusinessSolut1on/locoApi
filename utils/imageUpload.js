@@ -22,7 +22,6 @@ exports.UploadImage = async (image, type) => {
     const quizCategoryDir = path.join(__dirname, '..', "assets", "quizCategory");
     const quizQuestionsDir = path.join(__dirname, '..', "assets", "quizQuestions");
     const testYourSelfDir = path.join(__dirname, '..', "assets", "testYourSelf");
-    const bannerDir = path.join(__dirname, '..', "assets", "banner");
 
     // Function to create a directory if it doesn't exist
     function ensureDirectoryExists(dirPath) {
@@ -58,7 +57,6 @@ exports.UploadImage = async (image, type) => {
     ensureDirectoryExists(quizCategoryDir);
     ensureDirectoryExists(quizQuestionsDir);
     ensureDirectoryExists(testYourSelfDir);
-    ensureDirectoryExists(bannerDir);
 
     const date = new Date();
     const imageName = type + date.getTime() + image.name.replace(/\s+/g, '')
@@ -256,17 +254,6 @@ exports.UploadImage = async (image, type) => {
     // testYourSelf
     if (type === 'testYourSelf') {
         const imagePath = path.join(__dirname, '..', "assets", "testYourSelf", imageName)
-        image.mv(imagePath, (err) => {
-            if (err) {
-                console.log("error on image: ", err);
-                return false
-            }
-        })
-    }
-
-    // banner
-    if (type === 'banner') {
-        const imagePath = path.join(__dirname, '..', "assets", "banner", imageName)
         image.mv(imagePath, (err) => {
             if (err) {
                 console.log("error on image: ", err);

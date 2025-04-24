@@ -24,9 +24,22 @@ const getAllVideoCategory = async (req, res) => {
 
 const UpdateVideoCategory = async (req, res) => {
   try {
-    const response = await videCategory.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true, });
+    const response = await videCategory.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (response) {
-      res.status(200).json({ success: true, data: response, message: "Video Category Updated", });
+      res
+        .status(200)
+        .json({
+          success: true,
+          data: response,
+          message: "Video Category Updated",
+        });
     } else {
       res.status(404).json({ success: false, message: "Category not found" });
     }
@@ -39,7 +52,9 @@ const deleteVideoCategory = async (req, res) => {
   try {
     const response = await videCategory.findByIdAndDelete(req.params.id);
     if (response) {
-      res.status(200).json({ success: true, message: "Video Category deleted" });
+      res
+        .status(200)
+        .json({ success: true, message: "Video Category deleted" });
     } else {
       res.status(404).json({ success: false, message: "Category not found" });
     }
@@ -147,7 +162,7 @@ const UpdateVideo = async (req, res) => {
 
     const result = await Video.findById(id)
 
-
+    
     if (title) result.title = title;
     if (slug) result.slug = slug;
     if (tagsArray) result.tags = tagsArray;

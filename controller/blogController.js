@@ -1,15 +1,12 @@
 const Blog = require("../model/blogs/blogModules");
 const BlogCategoryModel = require("../model/blogs/blogcategoryModel");
 const GetBlogByCategoryId = async (req, res) => {
-  const { categoryId } = req.params;
-  // console.log("categoryId", categoryId);
-
   try {
+    const { categoryId } = req.params;
     if (!categoryId) {
       return res.status(400).json({ success: false, message: 'Category ID is required' });
     }
     const blogs = await Blog.find({ categoryId }).populate('comments.comment_user', 'name email image').lean();
-    // console.log("blogs: ", blogs.length);
 
     res.status(200).json(blogs);
   } catch (error) {
@@ -54,8 +51,7 @@ const GetBlogCategory = async (req, res) => {
   try {
     const categories = await BlogCategoryModel.find().lean();
     res.set("Cache-Control", "public, max-age=300");
-    // return res.status(200).json(categories);
-    return res.status(200).json({ message: "Ok", data: categories, success: true });
+    return res.status(200).json(categories);
   } catch (error) {
     return res.status(500).json({ success: false, message: "Server error, please try again later", });
   }

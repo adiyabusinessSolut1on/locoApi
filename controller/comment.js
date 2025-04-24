@@ -13,6 +13,28 @@ exports.getCommentsByCommunityId = async (req, res) => {
             return res.status(404).json({ success: false, message: "Community not found" });
         }
 
+        /* 
+        .populate({
+                path: "comments",
+                options: { sort: { createdAt: -1 } }, // Sort comments by creation date
+                select: "-__v",
+                populate: [
+                    {
+                        path: "replies",
+                        populate: [
+                            { path: "userId", select: "name image email mobile" },
+                            {
+                                path: "replies", // Populate child replies recursively
+                                populate: { path: "userId", select: "name image email mobile" }
+                            }
+                        ],
+                        options: { sort: { createdAt: -1 } }, // Sort comments by creation date
+                    },
+                    { path: "userId", select: "name image" }
+                ]
+            })
+        */
+
         // Fetch comments with populated replies and sorted by creation date
         const result = await Comment.find({ communityId: id, commentType: 'comment' })
             .sort({ createdAt: -1 }) // Sort comments by latest
@@ -28,10 +50,12 @@ exports.getCommentsByCommunityId = async (req, res) => {
                     }
                 ],
                 options: { sort: { createdAt: -1 } }, // Sort comments by creation date}]
-            }).populate({
+            })
+            .populate({
                 path: "userId", // Populate user who made the comment
                 select: "name image email",
-            }).populate({
+            })
+            .populate({
                 path: "communityUserId", // Populate the community user who made the comment
                 select: "name image email",
             });
@@ -42,20 +66,6 @@ exports.getCommentsByCommunityId = async (req, res) => {
         return res.status(500).json({ message: error.message, error: error, success: false });
     }
 };
-
-/* exports.getAllCommentsCommunity = async (req, res) => {
-    const id = req.params?.id
-    try {
-        const checkCommunity = await Community.findById(id)
-        if (!checkCommunity) {
-            return res.status(404).json({ success: false, message: "Community not found" });
-        }
-        const result = await Comment.find({ communityId: id, commentType: 'comment' })
-    } catch (error) {
-        console.error("Error in getAllCommentsCommunity: ", error);
-        return res.status(500).json({ message: error.message, error: error, success: false });
-    }
-} */
 
 
 //add comment

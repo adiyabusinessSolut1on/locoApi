@@ -2,9 +2,9 @@ const express = require("express");
 const { isUser } = require("../middleware/rolebaseuserValidate");
 const router = express.Router();
 const usermiddleare = require("../middleware/accoundvalidate");
-const { UserRegister, UserLogin, UpdateUserProfile, getUser, userPost, getAllPost, getAllPostByUserId, userMutualPost, getAllFormPost, getAllFormPostByUserId, getSeachMutualpostUsingwantedLobby, getSeachMutualpostUsingDvision, LikePosts, unLikePosts, savePostInUser, UpdateMutualPost, removePostFromUser, DeleteMutualPost, CommentPost, getAllQuiz, TestComplete, UpdateTestAnswer, UpdatePost, deletePost, userLikedPosts, getSinglePost, SavePosts, getSingleQuiz, getSingleTest, getAllTest, UpdateAnswer, QuizComplete, userComplteteQuiz, userComplteteTest, deleteUserAccount, UpdateImagePost, deleteImagePost, UserForgotPassword, userInfo, followOtherUser, blockAndUnblockUser, getAllFollwingUser, getAllFollowerUser, blockedUser, getRandomUser, getAllQuizPagination, getRandomOneQuiz, getSingleMutualPostById } = require("../controller/userController");
-const { getAll, getAllPagination, getSingle } = require("../controller/admin/implinks.Controller");
-const { getAllCategory, getAwarenessById, getAwarenessByCategory, getAll_Awareness, getSingleAwareness, getAllAwarenessPagination, getAwarenessByCategoryById, getIdFirstAwareness } = require("../controller/admin/awaremessController");
+const { UserRegister, UserLogin, UpdateUserProfile, getUser, userPost, getAllPost, getAllPostByUserId, userMutualPost, getAllFormPost, getAllFormPostByUserId, getSeachMutualpostUsingwantedLobby, getSeachMutualpostUsingDvision, LikePosts, unLikePosts, savePostInUser, UpdateMutualPost, removePostFromUser, DeleteMutualPost, CommentPost, getAllQuiz, TestComplete, UpdateTestAnswer, UpdatePost, deletePost, userLikedPosts, getSinglePost, SavePosts, getSingleQuiz, getSingleTest, getAllTest, UpdateAnswer, QuizComplete, userComplteteQuiz, userComplteteTest, deleteUserAccount, UpdateImagePost, deleteImagePost, UserForgotPassword, userInfo, followOtherUser, blockAndUnblockUser, getAllFollwingUser, getAllFollowerUser, blockedUser } = require("../controller/userController");
+const { getAll } = require("../controller/admin/implinks.Controller");
+const { getAllCategory, getAwarenessById, getAwarenessByCategory, getAll_Awareness, getSingleAwareness } = require("../controller/admin/awaremessController");
 const { GetUserBlog, AddCommentBlogById } = require("../controller/admin/blogs");
 const { getAllcompany, getSingleProduct, getSinglecompany, getAllProsucts, } = require("../controller/admin/sponsorController");
 const { getAllVideoCategory, GetVideoByCategory, GetVideoById, } = require("../controller/admin/videoController");
@@ -22,7 +22,6 @@ router.post("/forgot-password", UserForgotPassword)
 router.get('/userInfo/:id', isUser, userInfo)
 
 
-router.get("/mutual-post-byId/:id", isUser, getSingleMutualPostById);
 router.post("/mutual-post", usermiddleare, userMutualPost);
 router.put("/mutual-post/:id", isUser, UpdateMutualPost);
 router.delete("/mutual-post/:id", isUser, DeleteMutualPost);
@@ -56,16 +55,11 @@ router.put("/user/profile-update", usermiddleare, UpdateUserProfile);
 
 // important Links
 router.get("/important_link", getAll);
-router.get("/importants", getAllPagination);
-router.get("/important_link/:id", getSingle);
 
 //awareness
-router.get('/latest/awareness/:id', getIdFirstAwareness)
-router.get('/pagination/awareness', getAllAwarenessPagination)
 router.get("/awareness/category", getAllCategory);
 router.get("/awareness/:id", getAwarenessById);
 router.get("/awareness/category/:category", getAwarenessByCategory);
-// router.get("/awareness/category/:id", getAwarenessByCategoryById);
 
 //blog
 router.get("/blog/userblog", GetUserBlog);
@@ -89,8 +83,6 @@ router.put("/rempost", isUser, removePostFromUser)
 
 //user Quiz
 router.get("/quiz", isUser, getAllQuiz);
-router.get("/quizSingle", isUser, getRandomOneQuiz);
-router.get("/quizPagination", isUser, getAllQuizPagination);
 router.get("/quiz/:id", isUser, getSingleQuiz);
 router.put("/quiz/answer/:id", isUser, UpdateAnswer);
 router.put("/quiz/complete/:id", isUser, QuizComplete);
@@ -102,8 +94,6 @@ router.put("/test/answer/:id", isUser, UpdateTestAnswer);
 router.put("/test/complete/:id", isUser, TestComplete);
 
 //user usertest and quiz
-
-router.get('/getRandomUsers', getRandomUser)
 
 router.put("/userquiz/complete", isUser, userComplteteQuiz);
 router.put("/usertest/compltete", isUser, userComplteteTest);

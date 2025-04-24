@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { isAdmin, isUser } = require("../../middleware/rolebaseuserValidate");
+const { isAdmin } = require("../../middleware/rolebaseuserValidate");
 
 const { createQuizTestCategory, UpdateQuizTestCategory, getAllQuizTestCategory, deleteQuizTestCategory, CreatQuiz, UpdateQuiz, getAllQuiz, getSingleQuizQuestions, getSingleQuiz, deleteQuiz, CreateQuizQuestions, deleteQuizQuestion, UpdateQuizQuestion } = require("../../controller/admin/quizController")
 //Quiz
@@ -12,7 +12,7 @@ router.delete("/quiz/:id", isAdmin, deleteQuiz);
 
 //quiz test category
 router.post("/quiztest/category", isAdmin, createQuizTestCategory);
-router.get("/quiztest/category", isUser, getAllQuizTestCategory);
+router.get("/quiztest/category", isAdmin, getAllQuizTestCategory);
 router.put("/quiztest/category/:id", isAdmin, UpdateQuizTestCategory);
 router.delete("/quiztest/category/:id", isAdmin, deleteQuizTestCategory);
 

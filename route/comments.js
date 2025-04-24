@@ -5,7 +5,6 @@ const commentRouter = express.Router()
 
 commentRouter.get('/getByCommunityId/:id', isUser, getCommentsByCommunityId)
 
-// commentRouter.get('/community/comments/:id', isUser)
 
 commentRouter.post('/add/:id', isUser, addComment)
 

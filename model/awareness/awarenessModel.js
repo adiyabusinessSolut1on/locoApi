@@ -11,14 +11,16 @@ const awarenessModel = new mongoose.Schema(
       require: true,
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "awarenesscategory"
+      type: String,
+      require: true,
     },
     description: {
       type: String,
     },
   },
-  { timestamps: true, }
+  {
+    timestamps: true,
+  }
 );
 
 const Awareness = mongoose.model("awareness", awarenessModel);

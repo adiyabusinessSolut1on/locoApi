@@ -76,7 +76,10 @@ const getAllTest = async (req, res) => {
 
 const getAllQuiz = async (req, res) => {
   try {
-    const response = await Quiz.find().populate("questions").lean().sort({ createdAt: -1 });
+    const response = await Quiz.find()
+      .populate("questions")
+      .lean()
+      .sort({ createdAt: -1 });
 
     const randomizedResponse = response.map((quiz) => ({
       ...quiz,
@@ -183,7 +186,7 @@ const dailyTasksCompleted = async (req, res) => {
 
 const getAllQuizTestCategory = async (req, res) => {
   try {
-    const response = await QuizTestCategory.find().sort({ createdAt: -1 }).lean();
+    const response = await QuizTestCategory.find().lean();
     if (!response?.length > 0) {
       return res.status(200).json({ success: false, mesaage: "category Not Found" });
     }
