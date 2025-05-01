@@ -75,6 +75,7 @@ const getAllTest = async (req, res) => {
 
 const getAllQuiz = async (req, res) => {
   try {
+<<<<<<< HEAD
     const response = await Quiz.aggregate([
       {
         $sort: { createdAt: -1 },
@@ -91,6 +92,9 @@ const getAllQuiz = async (req, res) => {
         },
       },
     ]);
+=======
+    const response = await Quiz.find().populate("questions").lean().sort({ createdAt: -1 });
+>>>>>>> 62dab33ce447b47ec6cf7bb2c366b391ba662f48
 
     res.status(200).json(response);
   } catch (error) {
