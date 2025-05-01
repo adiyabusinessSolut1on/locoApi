@@ -15,17 +15,18 @@ const SubCategorySchema = new Schema({
   subSubCategories: [SubSubCategorySchema],
 });
 
-const BlogCategorySchema = new Schema(
-  {
-    name: { type: String, required: true },
-    image: { type: String, required: true },
-    subCategories: [SubCategorySchema],
+const BlogCategorySchema = new Schema({
+  name: {
+    type: String,
+    required: true
   },
-  {
-    timestamps: true,
-  }
-);
+  image: {
+    type: String,
+    required: true
+  },
+  subCategories: [SubCategorySchema],
+
+}, { timestamps: true, });
 
 const BlogCategory = mongoose.model("BlogCategory", BlogCategorySchema);
-
 module.exports = BlogCategory;

@@ -27,6 +27,8 @@ const checkRole = (requiredRole) => (req, res, next) => {
       return res.status(403).json({ error: { code: "FORBIDDEN_ACCESS", message: "Sorry, you do not have the necessary permissions to perform this action.", details: "Please contact your administrator for assistance.", }, });
     }
     req.userId = decoded._id;
+    // console.log("req: ", req.userId);
+
     next();
   } catch (error) {
     res.status(500).json({ error: error.message });

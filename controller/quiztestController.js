@@ -73,24 +73,32 @@ const getAllTest = async (req, res) => {
 };
 
 
-
 const getAllQuiz = async (req, res) => {
   try {
-    const response = await Quiz.find()
-      .populate("questions")
-      .lean()
-      .sort({ createdAt: -1 });
+    const response = await Quiz.aggregate([
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $lookup: {
+          from: "quiz_questions", // 👈 this must match MongoDB **collection name**
+          let: { questionIds: "$questions" }, // 👈 take questions array
+          pipeline: [
+            { $match: { $expr: { $in: ["$_id", "$$questionIds"] } } },
+            { $sample: { size: 10 } }, // randomize questions (adjust size)
+          ],
+          as: "questions",
+        },
+      },
+    ]);
 
-    const randomizedResponse = response.map((quiz) => ({
-      ...quiz,
-      questions: quiz.questions.sort(() => Math.random() - 0.5),
-    }));
-
-    res.status(200).json(randomizedResponse);
+    res.status(200).json(response);
   } catch (error) {
+    console.error("Aggregation error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 const getAllDailyTask = async (req, res) => {
@@ -186,7 +194,7 @@ const dailyTasksCompleted = async (req, res) => {
 
 const getAllQuizTestCategory = async (req, res) => {
   try {
-    const response = await QuizTestCategory.find().lean();
+    const response = await QuizTestCategory.find().sort({ createdAt: -1 }).lean();
     if (!response?.length > 0) {
       return res.status(200).json({ success: false, mesaage: "category Not Found" });
     }
